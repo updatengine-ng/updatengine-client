@@ -25,20 +25,20 @@
 import optparse
 import time
 import logging
+import socket
 from ueinventory import ueinventory
 from uecommunication import uecommunication
 from uedownload import uedownload
+from datetime import datetime, timedelta
 
 def wait(minutes, passphrase):
-    import socket
-    from datetime import datetime, timedelta
     socket.setdefaulttimeout(minutes*60)
     Sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     Sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     Host = ''
     Port = 2010
     Sock.bind((Host,Port))
-    Sock.listen(1)
+    Sock.listen(3)
     limit = datetime.now()+timedelta(minutes=minutes)
     print "wait for connexion with passphrase %s or %s" % (passphrase, limit)
     try:
@@ -47,6 +47,7 @@ def wait(minutes, passphrase):
             RequeteDuClient = client.recv(255)
             print RequeteDuClient
             if RequeteDuClient == passphrase:
+                client.close()
                 Sock.close()
                 return
     except socket.timeout:
