@@ -165,7 +165,10 @@ class ueinventory(object):
             try:
                 ip = netifaces.ifaddresses(net)[netifaces.AF_INET][0]['addr']
                 mask = netifaces.ifaddresses(net)[netifaces.AF_INET][0]['netmask']
-                mac = netifaces.ifaddresses(net)[netifaces.AF_LINK][0]['addr']
+                try:
+                    mac = netifaces.ifaddresses(net)[netifaces.AF_LINK][0]['addr']
+                except:
+                    mac = "00:00:00:00:00:00"
                 netlist.append(ip+','+mask+','+mac)
             except :
                 pass
