@@ -22,7 +22,7 @@
 ###############################################################################
 
 
-import optparse
+import argparse
 import time
 import logging
 from ueinventory import ueinventory
@@ -56,24 +56,24 @@ def wait(minutes, passphrase):
 def main():
 # Define options
 
-    parser = optparse.OptionParser("usage: %prog [options] arg1 arg2")
-    parser.add_option("-s", "--server", dest="server", \
-                   type="string", help="Your UpdatEngine server IP or DNS name")
-    parser.add_option("-i", "--inventory", dest="inventory", \
+    parser = argparse.ArgumentParser("usage: %prog [options] arg1 arg2")
+    parser.add_argument("-s", "--server", dest="server", \
+                   type=str, help="Your UpdatEngine server IP or DNS name")
+    parser.add_argument("-i", "--inventory", dest="inventory", \
                    action="store_false", help="Port of your UpdatEngine server")
-    parser.add_option("-v", "--verbose", dest="verbose", \
+    parser.add_argument("-v", "--verbose", dest="verbose", \
                    action="store_false", help="Verbose mode")
-    parser.add_option("-n", "--noproxy", dest="noproxy", \
+    parser.add_argument("-n", "--noproxy", dest="noproxy", \
                    action="store_false", help="do not use any proxy")
-    parser.add_option("-m", "--minutes", dest="minute", \
-                   type="int", help="Minute between each inventory")
-    parser.add_option("-c", "--cert", dest="cert", \
-                   type="string", help="Absolute path to cacert.pem file")
-    parser.add_option("-l", "--list", dest="list", \
+    parser.add_argument("-m", "--minutes", dest="minute", \
+                   type=int, help="Minute between each inventory")
+    parser.add_argument("-c", "--cert", dest="cert", \
+                   type=str, help="Absolute path to cacert.pem file")
+    parser.add_argument("-l", "--list", dest="list", \
                    action="store_false", help="To get public soft list")
-    parser.add_option("-g", "--get", type = "int", dest="get", \
+    parser.add_argument("-g", "--get", type=int, dest="get", \
                    help="Package number to install  manualy")
-    parser.add_option("-o", "--out", type = "string", dest="out", \
+    parser.add_argument("-o", "--out", type=str, dest="out", \
                    help="Full path to logfile")
     (options, args) = parser.parse_args()
 
@@ -181,3 +181,4 @@ if __name__ == "__main__":
         main()
     except:
         logging.exception("Error in main() function")
+

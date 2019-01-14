@@ -1,3 +1,4 @@
+
 ###############################################################################
 # UpdatEngine - Software Packages Deployment and Administration tool          #
 #                                                                             #
@@ -53,12 +54,14 @@ class ueinventory(object):
             softsum = str(hashlib.md5(softwaredata).hexdigest()) 
             netdata = self.format_netlist(self.get_netlist())
             netsum =  str(hashlib.md5(netdata).hexdigest())
+            username = self.get_username()
+
             data = "<Inventory>\n\
                 <Hostname>"+hostname.strip()+"</Hostname>\n\
                 <SerialNumber>"+serial.strip()+"</SerialNumber>\n\
                 <Manufacturer>"+manufacturer.strip()+"</Manufacturer>\n\
                 <Uuid>"+uuid.strip()+"</Uuid>\n\
-                <UserName>Undefined</UserName>\n\
+                <UserName>"+username.strip()+"</UserName>\n\
                 <Domain>"+domain.strip()+"</Domain>\n\
                 <Language>"+language.strip()+"</Language>\n\
                 <Product>"+product.strip()+"</Product>\n\
@@ -101,6 +104,12 @@ class ueinventory(object):
             return self.checkdmi(dmixp,'/dmidecode/SystemInfo/SystemUUID')
         except:
             return 'Unknown'
+
+    def get_username(self):
+        try:
+            return os.getlogin()
+        except:
+            return 'undefined'
         
     def get_domain(self):
         try:
