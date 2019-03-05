@@ -25,6 +25,9 @@ import subprocess
 import os
 import dmidecode
 import hashlib
+import psutil
+
+
 class ueinventory(object):
 
     @staticmethod
@@ -107,7 +110,7 @@ class ueinventory(object):
 
     def get_username(self):
         try:
-            return os.getlogin()
+            return psutil.users()[0].name
         except:
             return 'undefined'
         
@@ -217,6 +220,5 @@ class ueinventory(object):
                 <Systemdrive>"+line[3].strip()+"</Systemdrive>\n\
                 </Osdistribution>\n"
         return osdata
-
 
 
