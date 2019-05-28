@@ -18,6 +18,7 @@ updatengine client allow computer and server to be inventoried automatically on 
 - Add option '--version'
 - The console output and the logs are cleaner
 - A unique program for Linux distributions based on Debian and Redhat
+- An installer with the '/ forceinstall' option to immediately replace the application if it exists (then no 'Operation completed' in history!)
  
 ## Links
 - French Google discussion group : https://groups.google.com/forum/#!forum/updatengine-fr
