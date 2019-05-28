@@ -6,7 +6,7 @@
 ;
 
 #define MyAppName "UpdatEngine client"
-#define MyAppVersion "2.4.9.4"
+#define MyAppVersion "3.0"
 #define MyAppPublisher "UpdatEngine"
 #define MyAppURL "https://github.com/noelmartinon/updatengine-client"
 #define MyAppSetupName "updatengine-client-setup"
@@ -392,3 +392,4 @@ begin
 end;
 
 // --------------------------------
+

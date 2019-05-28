@@ -19,13 +19,20 @@
 # MA  02110-1301, USA.                                                        #
 ###############################################################################
 
-import platform, subprocess
+import platform
+import subprocess
+import os
 import re
 from _winreg import *
 import hashlib
 import sys
+from lxml import etree
+import time
+import ueconst
+
 
 class ueinventory(object):
+    xml = None
 
     @staticmethod
     def build_inventory():
@@ -41,40 +48,54 @@ class ueinventory(object):
         osdata = self.format_oslist(self.get_oslist())
         ossum =  str(hashlib.md5(osdata).hexdigest())
         softwaredata = self.format_softlist(self.get_softwarelist())
-        softsum = str(hashlib.md5(softwaredata).hexdigest()) 
+        softsum = str(hashlib.md5(softwaredata).hexdigest())
         netdata = self.format_netlist(self.get_netlist())
         netsum =  str(hashlib.md5(netdata).hexdigest())
         username = self.get_username().strip()
-        
+
         # Abort build_inventory if inventory presents too many errors
         if serial == manufacturer == product == domain == uuid == username == 'Unknown':
-            raise Exception('To many detection error: build_inventory aborted') 
+            raise Exception('To many detection error: build_inventory aborted')
 
-        data = "<Inventory>\n\
-            <Hostname>"+hostname+"</Hostname>\n\
-            <SerialNumber>"+serial+"</SerialNumber>\n\
-            <Manufacturer>"+manufacturer+"</Manufacturer>\n\
-            <Uuid>"+uuid+"</Uuid>\n\
-            <UserName>"+username+"</UserName>\n\
-            <Domain>"+domain+"</Domain>\n\
-            <Language>"+language+"</Language>\n\
-            <Product>"+product+"</Product>\n\
-            <Chassistype>"+chassistype+"</Chassistype>\n\
-            <Ossum>"+ossum+"</Ossum>\n\
-            <Softsum>"+softsum+"</Softsum>\n\
-            <Netsum>"+netsum+"</Netsum>\n\
-            "+osdata+"\n\
-            "+softwaredata+"\n\
-            "+netdata+"</Inventory>"
-        return (data, softsum)    
+        data = \
+            '<Inventory>' \
+            '<ClientVersion>' + ueconst.UE_CLIENT_VERSION + '</ClientVersion>' \
+            '<Hostname>' + hostname + '</Hostname>' \
+            '<SerialNumber>' + serial + '</SerialNumber>' \
+            '<Manufacturer>' + manufacturer + '</Manufacturer>' \
+            '<Uuid>' + uuid + '</Uuid>' \
+            '<UserName>' + username + '</UserName>' \
+            '<Domain>' + domain + '</Domain>' \
+            '<Language>' + language + '</Language>' \
+            '<Product>' + product + '</Product>' \
+            '<Chassistype>' + chassistype + '</Chassistype>' \
+            '<Ossum>' + ossum + '</Ossum>' \
+            '<Softsum>' + softsum + '</Softsum>' \
+            '<Netsum>' + netsum + '</Netsum>' \
+            + osdata \
+            + softwaredata \
+            + netdata + \
+            '</Inventory>'
+        return (data, softsum)
 
-    def get_serial(self):
-        try:
-            args = 'wmic bios get serialnumber'
-            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            return p.stdout.readlines()[1].decode(sys.stdout.encoding).encode('utf8')
-        except:
-            return 'Unknown'
+    @staticmethod
+    def build_extended_inventory(xml):
+        self = ueinventory()
+        self.xml = xml
+
+        serial = self.get_serial().strip()
+        hostname = self.get_hostname().strip()
+        extendeddata = self.get_extendeddata()
+        if not extendeddata:
+            return ''
+
+        data = \
+            '<Extended>' \
+            '<Hostname>' + hostname + '</Hostname>' \
+            '<SerialNumber>' + serial + '</SerialNumber>' \
+            + extendeddata + \
+            '</Extended>'
+        return (data)
 
     def get_hostname(self):
         try:
@@ -84,17 +105,17 @@ class ueinventory(object):
         except:
             return 'Unkown'
 
-    def get_manufacturer(self):
+    def get_serial(self):
         try:
-            args = 'wmic csproduct get vendor'
+            args = 'wmic bios get serialnumber'
             p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             return p.stdout.readlines()[1].decode(sys.stdout.encoding).encode('utf8')
         except:
             return 'Unknown'
 
-    def get_product(self):
+    def get_manufacturer(self):
         try:
-            args = 'wmic csproduct get name'
+            args = 'wmic csproduct get vendor'
             p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             return p.stdout.readlines()[1].decode(sys.stdout.encoding).encode('utf8')
         except:
@@ -107,7 +128,7 @@ class ueinventory(object):
             return p.stdout.readlines()[1].decode(sys.stdout.encoding).encode('utf8')
         except:
             return 'Unknown'
-        
+
     def get_username(self):
         try:
             args = 'wmic computersystem get username'
@@ -132,6 +153,14 @@ class ueinventory(object):
         except:
             return 'Unknown'
 
+    def get_product(self):
+        try:
+            args = 'wmic csproduct get name'
+            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            return p.stdout.readlines()[1].decode(sys.stdout.encoding).encode('utf8')
+        except:
+            return 'Unknown'
+
     def get_chassistype(self):
         chassis = ("Other","Unknown","Desktop","Low Profile Desktop","Pizza Box","Mini Tower",\
             "Tower","Portable","Laptop","Notebook","Hand Held","Docking Station","All in One",\
@@ -147,13 +176,13 @@ class ueinventory(object):
         except:
             return 'Detection error'
 
-    def get_softwarelist(self):     
+    def get_softwarelist(self):
         l = list()
         # try to read in registry for 64 bits OS
         try:
             aReg = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
             aKey = OpenKey(aReg, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",0, KEY_READ | KEY_WOW64_64KEY)
-        
+
             for i in range(1024):
                 try:
                     asubkey_name=EnumKey(aKey,i)
@@ -172,12 +201,12 @@ class ueinventory(object):
                     pass
         except:
             pass
-    
+
         # Then read on 32 bits, because 32bits version of python is used
         try:
             aReg = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
             aKey = OpenKey(aReg, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall")
-        
+
             for i in range(1024):
                 try:
                     asubkey_name=EnumKey(aKey,i)
@@ -201,18 +230,18 @@ class ueinventory(object):
         return l
 
     def format_softlist(self, slist):
-        sdata =""
+        sdata = ''
         for s in slist:
             s = self.encodeXMLText(s)
             line = s.split(',;,')
             if len(line) == 3:
-                sdata += "<Software>\n\
-                <Name>"+line[0].strip()+"</Name>\n\
-                <Version>"+line[1].strip()+"</Version>\n\
-                <Uninstall>"+line[2].strip()+"</Uninstall>\n\
-                </Software>\n"
+                sdata += \
+                    '<Software>' \
+                    '<Name>' + line[0].strip() + '</Name>' \
+                    '<Version>' + line[1].strip() + '</Version>' \
+                    '<Uninstall>' + line[2].strip() + '</Uninstall>' \
+                    '</Software>'
         return sdata
-
 
     def encodeXMLText(self,text):
         text = text.replace("<", "&lt;")
@@ -222,7 +251,7 @@ class ueinventory(object):
     def get_netlist(self):
         args = 'wmic nicconfig get ipaddress, macaddress, ipsubnet /format:list'
         p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        netlist = list()     
+        netlist = list()
         try:
             while True:
                 n=p.stdout.readline()
@@ -253,22 +282,23 @@ class ueinventory(object):
         return netlist
 
     def format_netlist(self, netlist):
-        ndata =""
+        ndata = ''
         for n in netlist:
             line = n.split(',')
             if len(line) == 3:
-                ndata += "<Network>\n\
-                <Ip>"+line[0].strip()+"</Ip>\n\
-                <Mask>"+line[1].strip()+"</Mask>\n\
-                <Mac>"+line[2].strip()+"</Mac>\n\
-                </Network>\n"
+                ndata += \
+                    '<Network>' \
+                    '<Ip>' + line[0].strip() + '</Ip>' \
+                    '<Mask>' + line[1].strip() + '</Mask>' \
+                    '<Mac>' + line[2].strip() + '</Mac>' \
+                    '</Network>'
         return ndata
 
     def get_oslist(self):
         oslist = list()
         args = 'wmic os get caption'
         p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        try:        
+        try:
             if 'Windows XP' in p.stdout.readlines()[1]:
                 args = 'wmic os get caption, csdversion, systemdrive /format:csv'
                 p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -301,20 +331,93 @@ class ueinventory(object):
                 oslist.append(name+','+version+','+arch+','+systemdrive)
         except:
                oslist = ('Unkown, Unknown, Unknown, Unknown')
-       
+
         return oslist
 
     def format_oslist(self, oslist):
-        osdata =""
+        osdata = ''
         for o in oslist:
             line = o.split(',')
             if len(line) == 4:
-                osdata += "<Osdistribution>\n\
-                <Name>"+line[0].strip()+"</Name>\n\
-                <Version>"+line[1].strip()+"</Version>\n\
-                <Arch>"+line[2].strip()+"</Arch>\n\
-                <Systemdrive>"+line[3].strip()+"</Systemdrive>\n\
-                </Osdistribution>\n"
+                osdata += \
+                    '<Osdistribution>' \
+                    '<Name>' + line[0].strip() + '</Name>' \
+                    '<Version>' + line[1].strip() + '</Version>' \
+                    '<Arch>' + line[2].strip() + '</Arch>' \
+                    '<Systemdrive>' + line[3].strip() + '</Systemdrive>' \
+                    '</Osdistribution>'
         return osdata
+
+    def sha256_checksum(self, filename, block_size=65536):
+        sha256 = hashlib.sha256()
+        with open(filename, 'rb') as f:
+            for block in iter(lambda: f.read(block_size), b''):
+                sha256.update(block)
+        return sha256.hexdigest()
+
+    def process_timeout(self, proc, timeout):
+        while True:
+            status = proc.poll()
+            if status is not None:
+                return status
+            if timeout <= 0:
+                if status is None:
+                    proc.kill()
+                return None
+                break
+            time.sleep(0.5)
+            timeout -= 0.5
+
+    def get_extendeddata(self):
+        root = etree.fromstring(self.xml)  # xml is a valid_response() then no Exception
+        handling = list()
+        for pack in root.findall('Extended'):
+            for path in pack.findall('File'):
+                extdata = '<File>'
+                extdata += '<Name>' + path.text + '</Name>'
+                if os.path.isfile(path.text):
+                    extdata += '<Status>True</Status>'
+                else:
+                    extdata += '<Status>False</Status>'
+                extdata += '</File>'
+                handling.append(extdata)
+            for path in pack.findall('Dir'):
+                extdata = '<Dir>'
+                extdata += '<Name>' + path.text + '</Name>'
+                if os.path.isdir(path.text):
+                    extdata += '<Status>True</Status>'
+                else:
+                    extdata += '<Status>False</Status>'
+                extdata += '</Dir>'
+                handling.append(extdata)
+            for path in pack.findall('FileDir'):
+                extdata = '<FileDir>'
+                extdata += '<Name>' + path.text + '</Name>'
+                if os.path.exists(path.text):
+                    extdata += '<Status>True</Status>'
+                else:
+                    extdata += '<Status>False</Status>'
+                extdata += '</FileDir>'
+                handling.append(extdata)
+            for path in pack.findall('Hash'):
+                extdata = '<Hash>'
+                extdata += '<Name>' + path.text + '</Name>'
+                if os.path.isfile(path.text):
+                    extdata += '<Status>' + self.sha256_checksum(path.text) + '</Status>'
+                else:
+                    extdata += '<Status>undefined</Status>'
+                extdata += '</Hash>'
+                handling.append(extdata)
+            for path in pack.findall('ExitCode'):
+                extdata = '<ExitCode>'
+                extdata += '<Name>' + path.text + '</Name>'
+                p = subprocess.Popen(path.text, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                if self.process_timeout(p, 30) is None:
+                    extdata += '<Status>undefined</Status>'
+                else:
+                    extdata += '<Status>' + str(p.returncode) + '</Status>'
+                extdata += '</ExitCode>'
+                handling.append(extdata)
+        return ''.join(handling)
 
 

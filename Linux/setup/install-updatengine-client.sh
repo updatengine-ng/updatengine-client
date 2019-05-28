@@ -4,7 +4,7 @@
 
 ## One shot installation command (just specify your UE-SERVER_URL and optionally the execution delay) :
 #
-# wget -O /tmp/install-updatengine-client.sh https://raw.githubusercontent.com/noelmartinon/updatengine-client/nm-dev/LinuxDpkg/setup/install-updatengine-client.sh --no-check-certificate && chmod +x /tmp/install-updatengine-client.sh && sudo /tmp/install-updatengine-client.sh "https://UE-SERVER_IP:1979"
+# wget -O /tmp/install-updatengine-client.sh https://raw.githubusercontent.com/noelmartinon/updatengine-client/master/Linux/setup/install-updatengine-client.sh --no-check-certificate && chmod +x /tmp/install-updatengine-client.sh && sudo /tmp/install-updatengine-client.sh "https://UE-SERVER_IP:1979"
 ##
 
 # Only root can run this script
