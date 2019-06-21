@@ -5,7 +5,7 @@ from urllib2 import URLError
 # functions below returns valid or not valid xml inventory to test
 # inventory in real conditions
 def xml_valid():
-    xml=""" 
+    xml="""
     <Inventory>
         <Hostname>DONC-AS-GMR-PT</Hostname>
         <SerialNumber>CNU21632N8</SerialNumber>
@@ -41,7 +41,7 @@ def xml_valid():
     return xml
 
 def xml_not_valid():
-    xml=""" 
+    xml="""
     <Inventory>
         <Hostname>DONC-AS-GMR-PT</Hostname>
         <SerialNumber>CNU21632N8</SerialNumber>

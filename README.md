@@ -2,23 +2,25 @@
 
 Version 3.0
 
-updatengine client allow computer and server to be inventoried automatically on an updatengine server and to deploy softwares
+UpdatEngine-client allow computer and server to be inventoried automatically on an updatengine server and to deploy softwares
 
-- [New features and versions changes](#new-features-and-versions-changes)
+- [Installation](#installation)
 - [Links](#links)
 - [License](#license)
 
-## New features and versions changes
-### v3.0
-- Compatible with the UpdatEngine-server versions prior to 3.0
-- Support the new extended conditions (see details in UpdatEngine-server)
-- Need administrator permission to execute
-- Add connection timed out after 30 seconds for all requests
-- Add package installation timed out after 30 minutes.
-- Add option '--version'
-- The console output and the logs are cleaner
-- A unique program for Linux distributions based on Debian and Redhat
-- An installer with the '/ forceinstall' option to immediately replace the application if it exists (then no 'Operation completed' in history!)
+## Installation
+### Windows
+The installation can be done by the graphical interface of the setup. Below only silent command line installations are presented.
+#### Example with an SSL certificat and immediate replacement of an existing installation
+If installed from an UE-Server then there is no 'Operation completed' in deployment history.
+```
+updatengine-client-setup-3.0.exe /verysilent /server=https://UE-SERVER_IP:1979 /noproxy /delay=30 /cert="%CD%\cacert.pem" /norestart /forceinstall
+```
+
+### Linux
+```
+wget -O /tmp/install-updatengine-client.sh https://raw.githubusercontent.com/noelmartinon/updatengine-client/master/Linux/setup/install-updatengine-client.sh --no-check-certificate && chmod +x /tmp/install-updatengine-client.sh && sudo /tmp/install-updatengine-client.sh -s "https://UE-SERVER_IP:1979" -m 30 -c mycert.pem -n
+```
  
 ## Links
 - French Google discussion group : https://groups.google.com/forum/#!forum/updatengine-fr
