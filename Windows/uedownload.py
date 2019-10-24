@@ -63,6 +63,7 @@ class uedownload(object):
                     command = pack.find('Command').text
                     command = command.replace('\n', ' && ')
                     command = command.replace('&& download_no_restart', '')
+                    command = command.replace('&& no_break_on_error', '')
                     command = command.replace('&& section_end', '')  # for retro compatibility
                     url = pack.find('Url').text
                     packagesum = pack.find('Packagesum').text
@@ -163,7 +164,6 @@ class uedownload(object):
             raise
         # download_launch is used to know if a download action append
         download_launch = None
-        break_download_action = None
         if self.max_download_action <= 0:
             self.max_download_action = 5
         self.max_download_action -= 1
@@ -171,20 +171,25 @@ class uedownload(object):
             # Install packages
             for pack in root.findall('Package'):
                 try:
+                    command = pack.find('Command').text
+                    if command.find('download_no_restart') != -1 and self.max_download_action < 4:
+                        continue
                     self.download_print_time()
                     print('Package: '+pack.find('Name').text)
                     logging.info('Package: '+pack.find('Name').text)
                     self.mid = pack.find('Id').text
                     self.pid = pack.find('Pid').text
-                    command = pack.find('Command').text
-                    if command.find('download_no_restart') != -1:
-                        break_download_action = False
+                    no_break_on_error = None
+                    if command.find('no_break_on_error') != -1:
+                        no_break_on_error = True
                     command = command.replace('\n', ' && ')
                     command = command.replace('&& download_no_restart', '')
+                    command = command.replace('&& no_break_on_error', '')
                     command = command.replace('&& section_end', '')  # for retro compatibility
                     url = pack.find('Url').text
                     packagesum = pack.find('Packagesum').text
                     download_launch = True
+                    status_msg = True
                 except:
                     print('Error in package xml format')
                     logging.exception('Error in package xml format')
@@ -234,7 +239,10 @@ class uedownload(object):
                             else:
                                 self.download_send_status('Error launching action: ' + err)
                                 logging.exception('Error launching action: ' + err)
-                            raise
+                            if no_break_on_error is True:
+                                status_msg = None
+                            else:
+                                raise
                         finally:
                             # come back to gettempdir to remove updatengine directory
                             try:
@@ -270,12 +278,16 @@ class uedownload(object):
                         else:
                             self.download_send_status('Error launching action: ' + err)
                             logging.exception('Error launching action: ' + err)
-                        raise
+                        if no_break_on_error is True:
+                            status_msg = None
+                        else:
+                            raise
 
-                print('Operation completed')
-                self.download_print_time()
-                self.download_send_status('Operation completed')
-                logging.info('Operation completed')
+                if status_msg is True:
+                    print('Operation completed')
+                    self.download_print_time()
+                    self.download_send_status('Operation completed')
+                    logging.info('Operation completed')
 
             if not root.findall('Package'):
                 print('No package to install')
@@ -295,8 +307,7 @@ class uedownload(object):
                     extended_inventory = ueinventory.build_extended_inventory(response_inventory)
                     if extended_inventory:
                         response_inventory = uecommunication.send_extended_inventory(self.urlinv, extended_inventory, options)
-                    # Break download action if an error occured during a previous install
-                    if break_download_action is None and self.max_download_action > 0:
+                    if self.max_download_action > 0:
                         time.sleep(5)
                         self.download_action(self.urlinv, str(response_inventory), options)
                 except:
@@ -323,9 +334,6 @@ class uedownload(object):
     def download_tmp(self, url, file_name, packagesum):
         from zipfile import ZipFile
         try:
-            print(url)
-            print(file_name)
-            print(packagesum)
             import urllib2
             if packagesum is None:
                 return 1

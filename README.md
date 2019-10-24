@@ -1,7 +1,5 @@
 # UpdatEngine-client
 
-Version 3.0
-
 UpdatEngine-client allow computer and server to be inventoried automatically on an updatengine server and to deploy softwares
 
 - [Installation](#installation)
@@ -14,7 +12,7 @@ The installation can be done by the graphical interface of the setup. Below only
 #### Example with an SSL certificat and immediate replacement of an existing installation
 If installed from an UE-Server then there is no 'Operation completed' in deployment history.
 ```
-updatengine-client-setup-3.0.exe /verysilent /server=https://UE-SERVER_IP:1979 /noproxy /delay=30 /cert="%CD%\cacert.pem" /norestart /forceinstall
+updatengine-client-setup-3.1.exe /verysilent /server=https://UE-SERVER_IP:1979 /noproxy /delay=30 /cert="%CD%\cacert.pem" /norestart /forceinstall
 ```
 
 ### Linux
