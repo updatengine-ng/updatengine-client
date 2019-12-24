@@ -222,8 +222,8 @@ def main():
                             extended_inventory = ueinventory.build_extended_inventory(response_inventory)
                             if extended_inventory:
                                 if options.verbose is True:
-                                    extended_inventory = extended_inventory.replace('&', '&amp;')
-                                    logging.info(parseXML(extended_inventory).toprettyxml(encoding='UTF-8', indent='  '))
+                                    extended_pretty = extended_inventory.replace('&', '&amp;')
+                                    logging.info(parseXML(extended_pretty).toprettyxml(encoding='UTF-8', indent='  '))
                                 response_inventory = uecommunication.send_extended_inventory(url, extended_inventory, options)
                         except Exception:
                             print('Error on extended inventory function')
