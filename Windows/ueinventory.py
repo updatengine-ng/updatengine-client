@@ -91,6 +91,7 @@ class ueinventory(object):
 
         data = \
             '<Extended>' \
+            '<ClientVersion>' + ueconst.UE_CLIENT_VERSION + '</ClientVersion>' \
             '<Hostname>' + hostname + '</Hostname>' \
             '<SerialNumber>' + serial + '</SerialNumber>' \
             + extendeddata + \
