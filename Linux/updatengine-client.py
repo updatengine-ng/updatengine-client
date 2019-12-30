@@ -57,20 +57,24 @@ def wait(minutes, passphrase):
     Sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     Host = ''
     Port = 2010
-    Sock.bind((Host, Port))
-    Sock.listen(3)
+    try:
+        Sock.bind((Host, Port))
+        Sock.listen(3)
+    except socket.error as msg:
+        print('Error bind port %d failed. Error code %d: %s' % (Port, msg[0], msg[1]))
+        logging.exception('Error bind port %d failed. Error code %d: %s' % (Port, msg[0], msg[1]))
+        raise
     limit = datetime.now() + timedelta(minutes=minutes)
-    print 'wait for connexion with passphrase %s or %s' % (passphrase, limit)
+    print('Wait for connexion with passphrase %s or %s' % (passphrase, limit))
     try:
         client, adresse = Sock.accept()
         while datetime.now() < limit:
             RequeteDuClient = client.recv(255)
-            print RequeteDuClient
+            print(RequeteDuClient)
             if RequeteDuClient == passphrase:
                 client.close()
                 Sock.close()
                 return
-
     except socket.timeout:
         Sock.close()
     return
@@ -175,6 +179,7 @@ def main():
         download = uedownload()
 
         while True:
+            ExitError = False
             if options.get is not None or options.list is True:
                 break
             logging.info('*********************************\n')
@@ -186,11 +191,11 @@ def main():
             except Exception:
                 print('Error when building inventory')
                 logging.exception('Error when building inventory')
-                sys.exit(1)
+                ExitError = True
             else:
                 if inventory is not None:
                     localtime = time.localtime()
-                    print time.strftime('%Y-%m-%d-%H:%M:%S', localtime)
+                    print(time.strftime('%Y-%m-%d-%H:%M:%S', localtime))
                     print('Inventory built')
                     logging.info('Inventory built')
 
@@ -211,7 +216,7 @@ def main():
                     except Exception:
                         print('Error on send_inventory process')
                         logging.exception('Error on send_inventory process')
-                        sys.exit(1)
+                        ExitError = True
                     else:
                         print('Inventory sent to ' + url)
                         logging.info('Inventory sent to ' + url)
@@ -228,7 +233,7 @@ def main():
                         except Exception:
                             print('Error on extended inventory function')
                             logging.exception('Error on extended inventory function')
-                            sys.exit(1)
+                            ExitError = True
                         else:
                             if extended_inventory:
                                 print('Extended inventory sent to ' + url)
@@ -236,20 +241,34 @@ def main():
                                 if options.verbose is True:
                                     print(parseXML(response_inventory).toprettyxml(encoding='UTF-8', indent='  '))
                             try:
+                                download.max_download_action = 5
                                 download.download_action(url, str(response_inventory), options)
                             except Exception:
-                                print 'Error on download_action function'
+                                print('Error on download_action function')
                                 logging.exception('Error on download_action function')
-                                sys.exit(1)
+                                try:
+                                    # Send a last inventory
+                                    time.sleep(5)
+                                    inventory = ueinventory.build_inventory()
+                                    response_inventory = uecommunication.send_inventory(url, inventory[0], options)
+                                except:
+                                    pass
+                                ExitError = True
 
             localtime = time.localtime()
             logging.info('End: ' + time.strftime('%Y-%m-%d-%H:%M:%S', localtime))
 
             if last:
+                if ExitError:
+                    sys.exit(1)
                 break
             else:
-                logging.info('Waiting '+str(options.minute)+' minute(s) until next inventory\n')
-                wait(options.minute, inventory[1])
+                logging.info('Waiting '+str(options.minute)+' minute(s) until next inventory')
+                try:
+                    wait(options.minute, inventory[1])
+                except:
+                    logging.exception('Error in wait() function')
+                    raise
     except:
         logging.exception('Error in main() function')
         sys.exit(1)

@@ -164,8 +164,6 @@ class uedownload(object):
             raise
         # download_launch is used to know if a download action append
         download_launch = None
-        if self.max_download_action <= 0:
-            self.max_download_action = 5
         self.max_download_action -= 1
         try:
             # Install packages
@@ -284,8 +282,8 @@ class uedownload(object):
                             raise
 
                 if status_msg is True:
-                    print('Operation completed')
                     self.download_print_time()
+                    print('Operation completed')
                     self.download_send_status('Operation completed')
                     logging.info('Operation completed')
 
@@ -300,15 +298,15 @@ class uedownload(object):
             # Loop download action
             if download_launch:
                 try:
-                    print('End of download and install')
                     self.download_print_time()
+                    print('End of download and install')
+                    time.sleep(5)
                     inventory = ueinventory.build_inventory()
                     response_inventory = uecommunication.send_inventory(self.urlinv, inventory[0], options)
                     extended_inventory = ueinventory.build_extended_inventory(response_inventory)
                     if extended_inventory:
                         response_inventory = uecommunication.send_extended_inventory(self.urlinv, extended_inventory, options)
                     if self.max_download_action > 0:
-                        time.sleep(5)
                         self.download_action(self.urlinv, str(response_inventory), options)
                 except:
                     print('Error in loop download action')
@@ -352,8 +350,7 @@ class uedownload(object):
                 file_size_dl += len(buffer)
                 f.write(buffer)
                 status = r'%10d  [%3.2f%%]' % (file_size_dl, file_size_dl * 100. / file_size)
-                status = status + chr(8)*(len(status)+1)
-                #print(status)
+                status = '\r' + status
                 sys.stdout.write(status)
             f.close()
             if self.md5_for_file(file_name) == packagesum:
