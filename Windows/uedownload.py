@@ -30,6 +30,7 @@ import time
 import logging
 import shutil
 import sys
+import re
 
 
 class uedownload(object):
@@ -39,6 +40,8 @@ class uedownload(object):
     mid = None
     pid = None
     max_download_action = 5  # Parameter to avoid infinite loops
+    default_timeout = 1800
+    timeout = default_timeout
 
     def download_pack(self, url, pack, options):
         packxml = uecommunication.get_public_software_list(url, options, pack)
@@ -57,14 +60,28 @@ class uedownload(object):
             for pack in root.findall('Package'):
                 try:
                     self.download_print_time()
-                    print('Package: '+pack.find('Name').text)
-                    logging.info('Package: '+pack.find('Name').text)
+                    print('Package: ' + pack.find('Name').text)
+                    logging.info('Package: ' + pack.find('Name').text)
                     self.pid = pack.find('Pid').text
                     command = pack.find('Command').text
-                    command = command.replace('\n', ' && ')
-                    command = command.replace('&& download_no_restart', '')
-                    command = command.replace('&& no_break_on_error', '')
-                    command = command.replace('&& section_end', '')  # for retro compatibility
+                    option_timeout = 'install_timeout_'
+                    self.timeout = self.default_timeout
+                    if command.find(option_timeout) != -1:
+                        match = re.search(option_timeout+'(.+?)(\r?\n|$)', command)
+                        try:
+                            option_timeout += match.group(1)
+                            command_value = int(match.group(1))
+                            if command_value > 0:
+                                self.timeout = command_value
+                        except:
+                            logmsg = 'Ignoring invalid option \'' + option_timeout + '\''
+                            print(logmsg)
+                            logging.warning(logmsg)
+                    command = re.sub("\n\s*\n*", " && ", command)  # Remove blank lines and convert \n to &&
+                    command = command.replace(' && download_no_restart', '')
+                    command = command.replace(' && no_break_on_error', '')
+                    command = command.replace(' && section_end', '')  # for retro compatibility
+                    command = command.replace(' && ' + option_timeout, '')
                     url = pack.find('Url').text
                     packagesum = pack.find('Packagesum').text
                 except:
@@ -84,7 +101,7 @@ class uedownload(object):
                     except:
                         self.download_print_time()
                         print('Error when downloading' + file_name)
-                        logging.exception('Error when downloading '+file_name)
+                        logging.exception('Error when downloading ' + file_name)
                         raise
                     else:
                         print('Install in progress')
@@ -93,7 +110,7 @@ class uedownload(object):
                         try:
                             os.chdir(tmpdir)
                             p = subprocess.Popen(command.encode(sys.getfilesystemencoding()), stderr=subprocess.PIPE, shell=True)
-                            retcode = self.process_timeout(p, 1800)
+                            retcode = self.process_timeout(p, self.timeout)
                             if retcode != 0:
                                 raise Exception(retcode)
                         except Exception as e:
@@ -126,7 +143,7 @@ class uedownload(object):
 
                     try:
                         p = subprocess.Popen(command.encode(sys.getfilesystemencoding()), stderr=subprocess.PIPE, shell=True)
-                        retcode = self.process_timeout(p, 1800)
+                        retcode = self.process_timeout(p, self.timeout)
                         if retcode != 0:
                             raise Exception(retcode)
                     except Exception as e:
@@ -173,17 +190,32 @@ class uedownload(object):
                     if command.find('download_no_restart') != -1 and self.max_download_action < 4:
                         continue
                     self.download_print_time()
-                    print('Package: '+pack.find('Name').text)
-                    logging.info('Package: '+pack.find('Name').text)
+                    print('Package: ' + pack.find('Name').text)
+                    logging.info('Package: ' + pack.find('Name').text)
                     self.mid = pack.find('Id').text
                     self.pid = pack.find('Pid').text
                     no_break_on_error = None
                     if command.find('no_break_on_error') != -1:
                         no_break_on_error = True
-                    command = command.replace('\n', ' && ')
-                    command = command.replace('&& download_no_restart', '')
-                    command = command.replace('&& no_break_on_error', '')
-                    command = command.replace('&& section_end', '')  # for retro compatibility
+                    option_timeout = 'install_timeout_'
+                    self.timeout = self.default_timeout
+                    if command.find(option_timeout) != -1:
+                        match = re.search(option_timeout+'(.+?)(\r?\n|$)', command)
+                        try:
+                            option_timeout += match.group(1)
+                            command_value = int(match.group(1))
+                            if command_value > 0:
+                                self.timeout = command_value
+                        except:
+                            logmsg = 'Ignoring invalid option \'' + option_timeout + '\''
+                            print(logmsg)
+                            self.download_send_status(logmsg)
+                            logging.warning(logmsg)
+                    command = re.sub("\n\s*\n*", " && ", command)  # Remove blank lines and convert \n to &&
+                    command = command.replace(' && download_no_restart', '')
+                    command = command.replace(' && no_break_on_error', '')
+                    command = command.replace(' && section_end', '')  # for retro compatibility
+                    command = command.replace(' && ' + option_timeout, '')
                     url = pack.find('Url').text
                     packagesum = pack.find('Packagesum').text
                     download_launch = True
@@ -206,7 +238,7 @@ class uedownload(object):
                     except:
                         self.download_print_time()
                         print('Error when downloading: ' + file_name)
-                        self.download_send_status('Error downloading file '+file_name)
+                        self.download_send_status('Error downloading file ' + file_name)
                         logging.exception('Error when downloading: ' + file_name)
                         raise
                     else:
@@ -217,7 +249,7 @@ class uedownload(object):
                         try:
                             os.chdir(tmpdir)
                             p = subprocess.Popen(command.encode(sys.getfilesystemencoding()), stderr=subprocess.PIPE, shell=True)
-                            retcode = self.process_timeout(p, 1800)
+                            retcode = self.process_timeout(p, self.timeout)
                             if retcode != 0:
                                 raise Exception(retcode)
                         except Exception as e:
@@ -256,7 +288,7 @@ class uedownload(object):
 
                     try:
                         p = subprocess.Popen(command.encode(sys.getfilesystemencoding()), stderr=subprocess.PIPE, shell=True)
-                        retcode = self.process_timeout(p, 1800)
+                        retcode = self.process_timeout(p, self.timeout)
                         if retcode != 0:
                             raise Exception(retcode)
                     except Exception as e:
@@ -316,7 +348,7 @@ class uedownload(object):
         try:
             if not self.mid:
                 self.mid = '0'
-            header = '<Packstatus><Mid>'+self.mid+'</Mid><Pid>'+self.pid+'</Pid><Status>'
+            header = '<Packstatus><Mid>' + self.mid + '</Mid><Pid>' + self.pid + '</Pid><Status>'
             tail = '</Status></Packstatus>'
             full_message = header + message + tail
             uecommunication.send_xml(self.urlinv, full_message, 'status', self.options)
@@ -352,11 +384,12 @@ class uedownload(object):
                 status = r'%10d  [%3.2f%%]' % (file_size_dl, file_size_dl * 100. / file_size)
                 status = '\r' + status
                 sys.stdout.write(status)
+
             f.close()
             if self.md5_for_file(file_name) == packagesum:
                 print('')
                 if str(file_name).lower().endswith('.zip'):
-                    ZipFile(file_name).extractall(tempfile.gettempdir()+'/updatengine/')
+                    ZipFile(file_name).extractall(tempfile.gettempdir() + '/updatengine/')
                 return 1
             else:
                 print('md5 don\'t match: ' + self.md5_for_file(file_name) + ' --- ' + packagesum)

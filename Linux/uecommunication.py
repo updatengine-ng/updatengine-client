@@ -43,7 +43,7 @@ class uecommunication(object):
             ssl.get_server_certificate((hostname, port), ssl_version=self.ssl_version, ca_certs=cafile_local)
         except ssl.SSLError:
             print('Error in check_ssl (ssl.get_server_certificate function)')
-            raise ssl.SSLError('SSL cert of Host:'+str(hostname)+' Port:'+str(port)+' is invalid')
+            raise ssl.SSLError('SSL cert of Host:' + str(hostname) + ' Port:' + str(port) + ' is invalid')
 
     def printable(self, s):
         import string

@@ -194,8 +194,8 @@ class ueinventory(object):
             if len(line) == 2:
                 sdata += \
                     '<Software>' \
-                    '<Name>'+line[0].strip()+'</Name>' \
-                    '<Version>'+line[1].strip()+'</Version>' \
+                    '<Name>' + line[0].strip() + '</Name>' \
+                    '<Version>' + line[1].strip() + '</Version>' \
                     '<Uninstall>Defined only for Windows hosts</Uninstall>' \
                     '</Software>'
         return sdata

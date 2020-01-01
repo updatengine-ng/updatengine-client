@@ -55,7 +55,7 @@ class ueinventory(object):
 
         # Abort build_inventory if inventory presents too many errors
         if serial == manufacturer == product == domain == uuid == username == 'Unknown':
-            raise Exception('To many detection error: build_inventory aborted')
+            raise Exception('Too many detection error: build_inventory aborted')
 
         data = \
             '<Inventory>' \
@@ -163,11 +163,11 @@ class ueinventory(object):
             return 'Unknown'
 
     def get_chassistype(self):
-        chassis = ("Other","Unknown","Desktop","Low Profile Desktop","Pizza Box","Mini Tower",\
-            "Tower","Portable","Laptop","Notebook","Hand Held","Docking Station","All in One",\
-            "Sub Notebook","Space-Saving","Lunch Box","Main System Chassis","Expansion Chassis",\
-            "Sub Chassis"," Bus Expansion Chassis","Peripheral Chassis","Storage Chass",\
-            "Rack Mount Chassis","Sealed-Case PC")
+        chassis = ('Other','Unknown','Desktop','Low Profile Desktop','Pizza Box','Mini Tower',\
+            'Tower','Portable','Laptop','Notebook','Hand Held','Docking Station','All in One',\
+            'Sub Notebook','Space-Saving','Lunch Box','Main System Chassis','Expansion Chassis',\
+            'Sub Chassis',' Bus Expansion Chassis','Peripheral Chassis','Storage Chass',\
+            'Rack Mount Chassis','Sealed-Case PC')
         try:
             args = 'wmic systemenclosure get chassistypes'
             p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -182,22 +182,22 @@ class ueinventory(object):
         # try to read in registry for 64 bits OS
         try:
             aReg = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
-            aKey = OpenKey(aReg, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",0, KEY_READ | KEY_WOW64_64KEY)
+            aKey = OpenKey(aReg, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall',0, KEY_READ | KEY_WOW64_64KEY)
 
             for i in range(1024):
                 try:
                     asubkey_name=EnumKey(aKey,i)
                     asubkey=OpenKey(aKey,asubkey_name)
-                    val=QueryValueEx(asubkey, "DisplayName")
+                    val=QueryValueEx(asubkey, 'DisplayName')
                     try:
-                        vers = QueryValueEx(asubkey, "DisplayVersion")
+                        vers = QueryValueEx(asubkey, 'DisplayVersion')
                     except:
                         vers = ('undefined',)
                     try:
-                        uninst = QueryValueEx(asubkey, "UninstallString")
+                        uninst = QueryValueEx(asubkey, 'UninstallString')
                     except:
                         uninst = ('undefined',)
-                    l.append(val[0].encode('utf-8')+',;,'+vers[0].encode('utf-8')+',;,'+uninst[0].encode('utf-8'))
+                    l.append(val[0].encode('utf-8') + ',;,' + vers[0].encode('utf-8') + ',;,' + uninst[0].encode('utf-8'))
                 except:
                     pass
         except:
@@ -206,24 +206,24 @@ class ueinventory(object):
         # Then read on 32 bits, because 32bits version of python is used
         try:
             aReg = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
-            aKey = OpenKey(aReg, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall")
+            aKey = OpenKey(aReg, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall')
 
             for i in range(1024):
                 try:
                     asubkey_name=EnumKey(aKey,i)
                     asubkey=OpenKey(aKey,asubkey_name)
-                    val=QueryValueEx(asubkey, "DisplayName")
+                    val=QueryValueEx(asubkey, 'DisplayName')
                     try:
-                        vers = QueryValueEx(asubkey, "DisplayVersion")
+                        vers = QueryValueEx(asubkey, 'DisplayVersion')
                     except:
                         vers = ('undefined',)
                     try:
-                        uninst = QueryValueEx(asubkey, "UninstallString")
+                        uninst = QueryValueEx(asubkey, 'UninstallString')
                     except:
                         uninst = ('undefined',)
-                                        # Prevent double detection for 32 bits systels
-                    if not val[0].encode('utf-8')+',;,'+vers[0].encode('utf-8')+',;,'+uninst[0].encode('utf-8') in l:
-                           l.append(val[0].encode('utf-8')+',;,'+vers[0].encode('utf-8')+',;,'+uninst[0].encode('utf-8'))
+                    # Prevent double detection for 32 bits systels
+                    if not val[0].encode('utf-8') + ',;,' + vers[0].encode('utf-8') + ',;,' + uninst[0].encode('utf-8') in l:
+                           l.append(val[0].encode('utf-8') + ',;,' + vers[0].encode('utf-8') + ',;,' + uninst[0].encode('utf-8'))
                 except:
                     pass
         except:
@@ -245,8 +245,8 @@ class ueinventory(object):
         return sdata
 
     def encodeXMLText(self,text):
-        text = text.replace("<", "&lt;")
-        text = text.replace(">", "&gt;")
+        text = text.replace('<', '&lt;')
+        text = text.replace('>', '&gt;')
         return text
 
     def get_netlist(self):
@@ -277,9 +277,9 @@ class ueinventory(object):
                             line = n.rstrip()
                             line = line.split('=')
                             mac = line[1]
-                            netlist.append(ip+','+mask+','+mac)
+                            netlist.append(ip + ',' + mask + ',' + mac)
         except:
-            print "Error when building netlist"
+            print('Error when building netlist')
         return netlist
 
     def format_netlist(self, netlist):
@@ -315,21 +315,21 @@ class ueinventory(object):
                     raw = p.stdout.readlines()[2]
                     line = raw.split(',')
                     if '86' in line[1].strip():
-                        arch = "32 bits"
+                        arch = '32 bits'
                     elif '64' in line[1].strip():
-                        arch = "64 bits"
+                        arch = '64 bits'
                 except:
                     arch = 'undefined'
-                oslist.append(name+','+version+','+arch+','+systemdrive)
+                oslist.append(name + ',' + version + ',' + arch + ',' + systemdrive)
             else:
                 args = 'wmic os get caption, csdversion, osarchitecture, systemdrive /format:list'
                 p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                 raw = p.stdout.readlines()
-                name = raw[2].split("=",1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
-                version = raw[3].split("=",1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
-                arch = raw[4].split("=",1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
-                systemdrive = raw[5].split("=",1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
-                oslist.append(name+','+version+','+arch+','+systemdrive)
+                name = raw[2].split('=',1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
+                version = raw[3].split('=',1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
+                arch = raw[4].split('=',1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
+                systemdrive = raw[5].split('=',1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
+                oslist.append(name + ',' + version + ',' + arch + ',' + systemdrive)
         except:
                oslist = ('Unkown, Unknown, Unknown, Unknown')
 
