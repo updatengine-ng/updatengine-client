@@ -115,7 +115,7 @@ class uedownload(object):
                                 raise Exception(retcode)
                         except Exception as e:
                             if str(e) == "None":
-                                err = "Timeout expires"
+                                err = "Timeout expired"
                             else:
                                 err = [s.strip() for s in p.stderr.readlines()]
                                 err = ' '.join(err)
@@ -148,7 +148,7 @@ class uedownload(object):
                             raise Exception(retcode)
                     except Exception as e:
                         if str(e) == "None":
-                            err = "Timeout expires"
+                            err = "Timeout expired"
                         else:
                             err = [s.strip() for s in p.stderr.readlines()]
                             err = ' '.join(err)
@@ -254,7 +254,7 @@ class uedownload(object):
                                 raise Exception(retcode)
                         except Exception as e:
                             if str(e) == "None":
-                                err = "Timeout expires"
+                                err = "Timeout expired"
                             else:
                                 err = [s.strip() for s in p.stderr.readlines()]
                                 err = ' '.join(err)
@@ -293,7 +293,7 @@ class uedownload(object):
                             raise Exception(retcode)
                     except Exception as e:
                         if str(e) == "None":
-                            err = "Timeout expires"
+                            err = "Timeout expired"
                         else:
                             err = [s.strip() for s in p.stderr.readlines()]
                             err = ' '.join(err)

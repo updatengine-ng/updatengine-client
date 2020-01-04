@@ -322,13 +322,18 @@ class ueinventory(object):
                     arch = 'undefined'
                 oslist.append(name + ',' + version + ',' + arch + ',' + systemdrive)
             else:
-                args = 'wmic os get caption, csdversion, osarchitecture, systemdrive /format:list'
+                args = 'wmic os get caption, csdversion, osarchitecture, systemdrive, version /format:list'
                 p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                 raw = p.stdout.readlines()
                 name = raw[2].split('=',1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
                 version = raw[3].split('=',1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
                 arch = raw[4].split('=',1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
                 systemdrive = raw[5].split('=',1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
+                versionbuild = raw[6].split('=',1)[1].strip().decode(sys.stdout.encoding).encode('utf8')
+                if version:
+                    version = versionbuild + ' - ' + version
+                else:
+                    version = versionbuild
                 oslist.append(name + ',' + version + ',' + arch + ',' + systemdrive)
         except:
                oslist = ('Unkown, Unknown, Unknown, Unknown')
