@@ -6,7 +6,7 @@
 ;
 
 #define MyAppName "UpdatEngine client"
-#define MyAppVersion "3.1.1"
+#define MyAppVersion "4.0.0"
 #define MyAppPublisher "UpdatEngine"
 #define MyAppURL "https://github.com/noelmartinon/updatengine-client"
 #define MyAppSetupName "updatengine-client-setup"
@@ -35,27 +35,65 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 Name: "fr"; MessagesFile: "compiler:Languages\French.isl"
 
 [Files]
-Source: "{#MyAppSource}\_ctypes.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion; BeforeInstall: CheckForceInstall()
+Source: "{#MyAppSource}\_bz2.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion; BeforeInstall: CheckForceInstall()
+Source: "{#MyAppSource}\_ctypes.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\_hashlib.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\_lzma.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\_socket.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\_ssl.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
-Source: "{#MyAppSource}\bz2.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-console-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-datetime-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-debug-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-errorhandling-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-file-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-file-l1-2-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-file-l2-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-handle-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-heap-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-interlocked-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-libraryloader-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-localization-l1-2-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-memory-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-namedpipe-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-processenvironment-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-processthreads-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-processthreads-l1-1-1.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-profile-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-rtlsupport-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-string-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-synch-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-synch-l1-2-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-sysinfo-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-timezone-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-core-util-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-conio-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-convert-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-environment-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-filesystem-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-heap-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-locale-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-math-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-process-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-runtime-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-stdio-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-string-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-time-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-utility-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\base_library.zip"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\libcrypto-1_1.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\libssl-1_1.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\LICENSE.txt"; DestDir: "{app}"; Flags: restartreplace ignoreversion
-Source: "{#MyAppSource}\lxml._elementpath.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
-Source: "{#MyAppSource}\lxml.etree.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
-Source: "{#MyAppSource}\Microsoft.VC90.CRT.manifest"; DestDir: "{app}"; Flags: restartreplace ignoreversion
-Source: "{#MyAppSource}\msvcm90.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
-Source: "{#MyAppSource}\msvcp90.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
-Source: "{#MyAppSource}\msvcr90.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\pyexpat.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
-Source: "{#MyAppSource}\python27.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
-Source: "{#MyAppSource}\pywintypes27.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\python37.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\select.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\ucrtbase.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\unicodedata.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
-Source: "{#MyAppSource}\updatengine.ico"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\updatengine-client.exe"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\updatengine-client.exe.manifest"; DestDir: "{app}"; Flags: restartreplace ignoreversion
-Source: "{#MyAppSource}\win32pipe.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\updatengine.ico"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\VCRUNTIME140.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\lxml\_elementpath.cp37-win32.pyd"; DestDir: "{app}\lxml"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\lxml\etree.cp37-win32.pyd"; DestDir: "{app}\lxml"; Flags: restartreplace ignoreversion
 
 [Registry]
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment\"; ValueName: "Path"; ValueType: ExpandSZ; ValueData: "{reg:HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\,Path};{app}"; Check: "NeedsAddPath(ExpandConstant('{app}'))"; MinVersion: 0.0,5.0; 

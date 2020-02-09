@@ -36,24 +36,21 @@ class ueinventory(object):
     @staticmethod
     def build_inventory():
         self = ueinventory()
-        dmixml = dmidecode.dmidecodeXML()
-        dmixml.SetResultType(dmidecode.DMIXML_DOC)
-        xmldoc = dmixml.QuerySection('all')
-        dmixp = xmldoc.xpathNewContext()
-        manufacturer = self.get_manufacturer(dmixp).strip()
-        product = self.get_product(dmixp).strip()
-        serial = self.get_serial(dmixp).strip()
-        uuid = self.get_uuid(dmixp).strip()
+        dmi = dmidecode.DMIDecode()
+        hostname = self.get_hostname().strip()
+        serial = self.get_serial(dmi).strip()
+        manufacturer = self.get_manufacturer(dmi).strip()
+        product = self.get_product(dmi).strip()
+        uuid = self.get_uuid(dmi).strip()
         domain = self.get_domain().strip()
         language = self.get_language().strip()
-        chassistype = self.get_chassistype(dmixp).strip()
-        hostname = self.get_hostname().strip()
+        chassistype = self.get_chassistype(dmi).strip()
         osdata = self.format_oslist(self.get_oslist())
-        ossum = str(hashlib.md5(osdata).hexdigest())
+        ossum = str(hashlib.md5(osdata.encode('utf-8')).hexdigest())
         softwaredata = self.format_softlist(self.get_softwarelist())
-        softsum = str(hashlib.md5(softwaredata).hexdigest())
+        softsum = str(hashlib.md5(softwaredata.encode('utf-8')).hexdigest())
         netdata = self.format_netlist(self.get_netlist())
-        netsum = str(hashlib.md5(netdata).hexdigest())
+        netsum = str(hashlib.md5(netdata.encode('utf-8')).hexdigest())
         username = self.get_username().strip()
 
         data = \
@@ -82,12 +79,9 @@ class ueinventory(object):
         self = ueinventory()
         self.xml = xml
 
-        dmixml = dmidecode.dmidecodeXML()
-        dmixml.SetResultType(dmidecode.DMIXML_DOC)
-        xmldoc = dmixml.QuerySection('all')
-        dmixp = xmldoc.xpathNewContext()
-        serial = self.get_serial(dmixp).strip()
+        dmi = dmidecode.DMIDecode()
         hostname = self.get_hostname().strip()
+        serial = self.get_serial(dmi).strip()
         extendeddata = self.get_extendeddata()
         if not extendeddata:
             return ''
@@ -101,33 +95,27 @@ class ueinventory(object):
             '</Extended>'
         return (data)
 
-    def checkdmi(self, dmixp, tag):
-        try:
-            return dmixp.xpathEval(tag)[0].get_content()
-        except:
-            return 'Unknown'
-
     def get_hostname(self):
         try:
             return platform.node()
         except:
             return 'Unknown'
 
-    def get_serial(self, dmixp):
+    def get_serial(self, dmi):
         try:
-            return self.checkdmi(dmixp, '/dmidecode/SystemInfo/SerialNumber')
+            return dmi.serial_number()
         except:
             return 'Unknown'
 
-    def get_manufacturer(self, dmixp):
+    def get_manufacturer(self, dmi):
         try:
-            return self.checkdmi(dmixp, '/dmidecode/SystemInfo/Manufacturer')
+            return dmi.manufacturer()
         except:
             return'Unknown'
 
-    def get_uuid(self, dmixp):
+    def get_uuid(self, dmi):
         try:
-            return self.checkdmi(dmixp, '/dmidecode/SystemInfo/SystemUUID')
+            return dmi.get('System')[0].get('UUID', dmi.default)
         except:
             return 'Unknown'
 
@@ -157,15 +145,15 @@ class ueinventory(object):
         except:
             return 'Unknown'
 
-    def get_product(self, dmixp):
+    def get_product(self, dmi):
         try:
-            return self.checkdmi(dmixp, '/dmidecode/SystemInfo/ProductName')
+            return dmi.model()
         except:
             return 'Unknown'
 
-    def get_chassistype(self, dmixp):
+    def get_chassistype(self, dmi):
         try:
-            return self.checkdmi(dmixp, '/dmidecode/ChassisInfo/ChassisType')
+            return dmi.get('Chassis')[0].get('Type', dmi.default)
         except:
             return 'Unknown'
 
@@ -182,7 +170,7 @@ class ueinventory(object):
                 streamdata = p.communicate()[0]
             l = list()
             for s in streamdata.splitlines():
-                l.append(s.encode('utf-8'))
+                l.append(s)
             return l
         except:
             return []
@@ -190,6 +178,7 @@ class ueinventory(object):
     def format_softlist(self, slist):
         sdata = ''
         for s in slist:
+            s = s.decode('utf-8')
             line = s.split(', ')
             if len(line) == 2:
                 sdata += \
@@ -207,6 +196,8 @@ class ueinventory(object):
         for net in netnamelist:
             try:
                 ip = netifaces.ifaddresses(net)[netifaces.AF_INET][0]['addr']
+                if ip == '127.0.0.1':
+                    continue
                 mask = netifaces.ifaddresses(net)[netifaces.AF_INET][0]['netmask']
                 try:
                     mac = netifaces.ifaddresses(net)[netifaces.AF_LINK][0]['addr']
@@ -261,19 +252,6 @@ class ueinventory(object):
                 sha256.update(block)
         return sha256.hexdigest()
 
-    def process_timeout(self, proc, timeout):
-        while True:
-            status = proc.poll()
-            if status is not None:
-                return status
-            if timeout <= 0:
-                if status is None:
-                    proc.kill()
-                return None
-                break
-            time.sleep(0.5)
-            timeout -= 0.5
-
     def get_extendeddata(self):
         root = etree.fromstring(self.xml)  # xml is a valid_response() then no Exception
         handling = list()
@@ -317,11 +295,12 @@ class ueinventory(object):
             for path in pack.findall('ExitCode'):
                 extdata = '<ExitCode>'
                 extdata += '<Name>' + path.text + '</Name>'
-                p = subprocess.Popen(path.text, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-                if self.process_timeout(p, 30) is None:
+                try:
+                    p = subprocess.Popen(path.text, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                    retcode = p.wait(timeout=30)
+                    extdata += '<Status>' + str(retcode) + '</Status>'
+                except:
                     extdata += '<Status>undefined</Status>'
-                else:
-                    extdata += '<Status>' + str(p.returncode) + '</Status>'
                 extdata += '</ExitCode>'
                 handling.append(extdata)
         return ''.join(handling)

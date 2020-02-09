@@ -20,9 +20,9 @@
 ###############################################################################
 
 import ssl
-import urllib
-import urllib2
-import urlparse
+import urllib.request
+import urllib.parse
+import urllib.error
 import socket
 from lxml import etree
 from ueerrors import *
@@ -54,9 +54,9 @@ class uecommunication(object):
     def send_xml(url, xml, action, options=None):
         self = uecommunication()
         xml = self.printable(xml)
-        cookieHandler = urllib2.HTTPCookieProcessor()
+        cookieHandler = urllib.request.HTTPCookieProcessor()
         try:
-            urlbits = urlparse.urlparse(url)
+            urlbits = urllib.parse.urlparse(url)
         except Exception:
             print('Error in send_xml (urlparse.urlparse function)')
             raise
@@ -75,19 +75,19 @@ class uecommunication(object):
             except:
                 raise
         if options.noproxy is True:
-            proxy_handler = urllib2.ProxyHandler({})
-            opener = urllib2.build_opener(urllib2.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler, proxy_handler)
+            proxy_handler = urllib.request.ProxyHandler({})
+            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler, proxy_handler)
         else:
-            opener = urllib2.build_opener(urllib2.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler)
-        urllib2.install_opener(opener)
+            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler)
+        urllib.request.install_opener(opener)
 
         try:
             opener.open(url)
-        except IOError, e:
+        except IOError as e:
             if hasattr(e, 'reason'):
-                print ('error: Unable to connect to server. ' + str(e.reason))
+                print('error: Unable to connect to server. ' + str(e.reason))
             elif hasattr(e, 'code'):
-                print ('error: The request could not be satisfied. ' + str(e.code))
+                print('error: The request could not be satisfied. ' + str(e.code))
             raise
         except Exception:
             raise
@@ -100,10 +100,10 @@ class uecommunication(object):
         if cookie is None:
             raise IOError('No csrf cookie found')
         try:
-            parameter = urllib.urlencode(dict(action=action, xml=xml, csrfmiddlewaretoken=csrf_cookie.value))
-            req = urllib2.Request(url, parameter)
+            parameter = urllib.parse.urlencode(dict(action=action, xml=xml, csrfmiddlewaretoken=csrf_cookie.value)).encode("utf-8")
+            req = urllib.request.Request(url, parameter)
             req.add_header('Referer', url)
-            response = urllib2.urlopen(req).read()
+            response = urllib.request.urlopen(req).read()
         except Exception:
             raise
         return response
@@ -135,9 +135,9 @@ class uecommunication(object):
     @staticmethod
     def get_public_software_list(url, options=None, pack=None):
         self = uecommunication()
-        cookieHandler = urllib2.HTTPCookieProcessor()
+        cookieHandler = urllib.request.HTTPCookieProcessor()
         try:
-            urlbits = urlparse.urlparse(url)
+            urlbits = urllib.parse.urlparse(url)
         except Exception:
             print('Error in get_softlist (urlparse.urlparse function)')
             raise
@@ -156,19 +156,19 @@ class uecommunication(object):
             except:
                 raise
         if options.noproxy is True:
-            proxy_handler = urllib2.ProxyHandler({})
-            opener = urllib2.build_opener(urllib2.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler, proxy_handler)
+            proxy_handler = urllib.request.ProxyHandler({})
+            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler, proxy_handler)
         else:
-            opener = urllib2.build_opener(urllib2.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler)
-        urllib2.install_opener(opener)
+            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler)
+        urllib.request.install_opener(opener)
 
         try:
             opener.open(url)
-        except IOError, e:
+        except IOError as e:
             if hasattr(e, 'reason'):
-                print ('error: Unable to connect to server. ' + str(e.reason))
+                print('error: Unable to connect to server. ' + str(e.reason))
             elif hasattr(e, 'code'):
-                print ('error: The request could not be satisfied. ' + str(e.code))
+                print('error: The request could not be satisfied. ' + str(e.code))
             raise
         except Exception:
             raise
@@ -182,12 +182,12 @@ class uecommunication(object):
             raise IOError('No csrf cookie found')
         try:
             if pack is not None:
-                parameter = urllib.urlencode(dict(action='softlist', pack=pack, csrfmiddlewaretoken=csrf_cookie.value))
+                parameter = urllib.parse.urlencode(dict(action='softlist', pack=pack, csrfmiddlewaretoken=csrf_cookie.value)).encode("utf-8")
             else:
-                parameter = urllib.urlencode(dict(action='softlist', csrfmiddlewaretoken=csrf_cookie.value))
-            req = urllib2.Request(url, parameter)
+                parameter = urllib.parse.urlencode(dict(action='softlist', csrfmiddlewaretoken=csrf_cookie.value)).encode("utf-8")
+            req = urllib.request.Request(url, parameter)
             req.add_header('Referer', url)
-            response = urllib2.urlopen(req).read()
+            response = urllib.request.urlopen(req).read()
         except Exception:
             raise
         return response

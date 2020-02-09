@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.7
 
 ###############################################################################
 # UpdatEngine - Software Packages Deployment and Administration tool          #
@@ -60,17 +60,19 @@ def wait(minutes, passphrase):
     try:
         Sock.bind((Host, Port))
         Sock.listen(3)
-    except socket.error as msg:
-        print('Error bind port %d failed. Error code %d: %s' % (Port, msg[0], msg[1]))
-        logging.exception('Error bind port %d failed. Error code %d: %s' % (Port, msg[0], msg[1]))
+    except OSError as msg:
+        print('Error bind port %d failed. Error code %d: %s' % (Port, msg.errno, msg.strerror))
+        logging.exception('Error bind port %d failed. Error code %d: %s' % (Port, msg.errno, msg.strerror))
         raise
     limit = datetime.now() + timedelta(minutes=minutes)
     print('Wait for connexion with passphrase %s or %s' % (passphrase, limit))
     try:
-        client, adresse = Sock.accept()
         while datetime.now() < limit:
+            client, adresse = Sock.accept()
             RequeteDuClient = client.recv(255)
-            print(RequeteDuClient)
+            if RequeteDuClient != b'':
+                RequeteDuClient = RequeteDuClient.decode('utf-8')
+                print('Received {!r}'.format(RequeteDuClient))
             if RequeteDuClient == passphrase:
                 client.close()
                 Sock.close()
@@ -202,7 +204,7 @@ def main():
                 if options.verbose is True:
                     try:
                         inventory_pretty = inventory[0].replace('&', '&amp;')
-                        inventory_pretty = parseXML(inventory_pretty).toprettyxml(encoding='UTF-8', indent='  ')
+                        inventory_pretty = parseXML(inventory_pretty).toprettyxml(indent='  ')
                         logging.info(inventory_pretty + inventory[1])
                         if len(sys.argv) == 2:
                             print(inventory_pretty)
@@ -221,14 +223,14 @@ def main():
                         print('Inventory sent to ' + url)
                         logging.info('Inventory sent to ' + url)
                         if options.verbose is True:
-                            print(parseXML(response_inventory).toprettyxml(encoding='UTF-8', indent='  '))
+                            print(parseXML(response_inventory).toprettyxml(indent='  '))
                         uecommunication.print_warninfo(response_inventory)
                         try:
                             extended_inventory = ueinventory.build_extended_inventory(response_inventory)
                             if extended_inventory:
                                 if options.verbose is True:
                                     extended_pretty = extended_inventory.replace('&', '&amp;')
-                                    logging.info(parseXML(extended_pretty).toprettyxml(encoding='UTF-8', indent='  '))
+                                    logging.info(parseXML(extended_pretty).toprettyxml(indent='  '))
                                 response_inventory = uecommunication.send_extended_inventory(url, extended_inventory, options)
                         except Exception:
                             print('Error on extended inventory function')
@@ -239,10 +241,10 @@ def main():
                                 print('Extended inventory sent to ' + url)
                                 logging.info('Extended inventory sent to ' + url)
                                 if options.verbose is True:
-                                    print(parseXML(response_inventory).toprettyxml(encoding='UTF-8', indent='  '))
+                                    print(parseXML(response_inventory).toprettyxml(indent='  '))
                             try:
                                 download.max_download_action = 5
-                                download.download_action(url, str(response_inventory), options)
+                                download.download_action(url, response_inventory, options)
                             except Exception:
                                 print('Error on download_action function')
                                 logging.exception('Error on download_action function')

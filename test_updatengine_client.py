@@ -1,7 +1,7 @@
 from py.test import raises
 from LinuxDpkg.uecommunication import uecommunication
 from LinuxDpkg.ueerrors import UeReadResponse, UeImportError, UeResponseError
-from urllib2 import URLError
+from urllib.error import URLError
 # functions below returns valid or not valid xml inventory to test
 # inventory in real conditions
 def xml_valid():

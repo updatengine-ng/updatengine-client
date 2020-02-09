@@ -100,8 +100,8 @@ class uedownload(object):
                         self.download_tmp(url, file_name, packagesum)
                     except:
                         self.download_print_time()
-                        print('Error when downloading' + file_name)
-                        logging.exception('Error when downloading ' + file_name)
+                        print('Error when downloading: ' + file_name)
+                        logging.exception('Error when downloading: ' + file_name)
                         raise
                     else:
                         print('Install in progress')
@@ -109,26 +109,38 @@ class uedownload(object):
 
                         try:
                             os.chdir(tmpdir)
-                            p = subprocess.Popen(command.encode(sys.getfilesystemencoding()), stderr=subprocess.PIPE, shell=True)
-                            retcode = self.process_timeout(p, self.timeout)
+                            p = subprocess.Popen(command, stderr=subprocess.PIPE, shell=True)
+                            retcode = p.wait(timeout=self.timeout)
                             if retcode != 0:
                                 raise Exception(retcode)
-                        except Exception as e:
-                            if str(e) == "None":
-                                err = "Timeout expired"
-                            else:
-                                err = [s.strip() for s in p.stderr.readlines()]
-                                err = ' '.join(err)
-                                if len(err):
-                                    err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
-                                else:
-                                    err = "Exit code " + str(e)
+                        except subprocess.TimeoutExpired:
+                            p.kill()
+                            err = "Timeout expired"
                             print('Error launching action: ' + err)
                             if sys.platform == 'win32':
                                 logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
                             else:
                                 logging.exception('Error launching action: ' + err)
-                            raise
+                            if no_break_on_error is True:
+                                status_msg = None
+                            else:
+                                raise
+                        except Exception as e:
+                            err = [s.strip().decode('utf-8') for s in p.stderr.readlines()]
+                            err = ' '.join(err)
+                            if len(err):
+                                err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
+                            else:
+                                err = "Exit code " + str(e)
+                            print('Error launching action: ' + str(err))
+                            if sys.platform == 'win32':
+                                logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
+                            else:
+                                logging.exception('Error launching action: ' + err)
+                            if no_break_on_error is True:
+                                status_msg = None
+                            else:
+                                raise
                         finally:
                             # come back to gettemdir to remove updatengine directory
                             try:
@@ -142,23 +154,38 @@ class uedownload(object):
                     logging.info('Install in progress')
 
                     try:
-                        p = subprocess.Popen(command.encode(sys.getfilesystemencoding()), stderr=subprocess.PIPE, shell=True)
-                        retcode = self.process_timeout(p, self.timeout)
+                        p = subprocess.Popen(command, stderr=subprocess.PIPE, shell=True)
+                        retcode = p.wait(timeout=self.timeout)
                         if retcode != 0:
                             raise Exception(retcode)
-                    except Exception as e:
-                        if str(e) == "None":
-                            err = "Timeout expired"
-                        else:
-                            err = [s.strip() for s in p.stderr.readlines()]
-                            err = ' '.join(err)
-                            if len(err):
-                                err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
-                            else:
-                                err = "Exit code " + str(e)
+                    except subprocess.TimeoutExpired:
+                        p.kill()
+                        err = "Timeout expired"
                         print('Error launching action: ' + err)
-                        logging.exception('Error launching action: ' + err)
-                        raise
+                        if sys.platform == 'win32':
+                            logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
+                        else:
+                            logging.exception('Error launching action: ' + err)
+                        if no_break_on_error is True:
+                            status_msg = None
+                        else:
+                            raise
+                    except Exception as e:
+                        err = [s.strip().decode('utf-8') for s in p.stderr.readlines()]
+                        err = ' '.join(err)
+                        if len(err):
+                            err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
+                        else:
+                            err = "Exit code " + str(e)
+                        print('Error launching action: ' + str(err))
+                        if sys.platform == 'win32':
+                            logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
+                        else:
+                            logging.exception('Error launching action: ' + err)
+                        if no_break_on_error is True:
+                            status_msg = None
+                        else:
+                            raise
 
                 self.download_print_time()
                 print('Operation completed')
@@ -248,23 +275,34 @@ class uedownload(object):
 
                         try:
                             os.chdir(tmpdir)
-                            p = subprocess.Popen(command.encode(sys.getfilesystemencoding()), stderr=subprocess.PIPE, shell=True)
-                            retcode = self.process_timeout(p, self.timeout)
+                            p = subprocess.Popen(command, stderr=subprocess.PIPE, shell=True)
+                            retcode = p.wait(timeout=self.timeout)
                             if retcode != 0:
                                 raise Exception(retcode)
-                        except Exception as e:
-                            if str(e) == "None":
-                                err = "Timeout expired"
-                            else:
-                                err = [s.strip() for s in p.stderr.readlines()]
-                                err = ' '.join(err)
-                                if len(err):
-                                    err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
-                                else:
-                                    err = "Exit code " + str(e)
+                        except subprocess.TimeoutExpired:
+                            p.kill()
+                            err = "Timeout expired"
                             print('Error launching action: ' + err)
                             if sys.platform == 'win32':
-                                self.download_send_status('Error launching action: ' + err.decode(sys.stdout.encoding).encode('utf8'))
+                                self.download_send_status('Error launching action: ' + err.decode(sys.stdout.encoding).encode('utf-8'))
+                                logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
+                            else:
+                                self.download_send_status('Error launching action: ' + err)
+                                logging.exception('Error launching action: ' + err)
+                            if no_break_on_error is True:
+                                status_msg = None
+                            else:
+                                raise
+                        except Exception as e:
+                            err = [s.strip().decode('utf-8') for s in p.stderr.readlines()]
+                            err = ' '.join(err)
+                            if len(err):
+                                err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
+                            else:
+                                err = "Exit code " + str(e)
+                            print('Error launching action: ' + str(err))
+                            if sys.platform == 'win32':
+                                self.download_send_status('Error launching action: ' + err.decode(sys.stdout.encoding).encode('utf-8'))
                                 logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
                             else:
                                 self.download_send_status('Error launching action: ' + err)
@@ -287,23 +325,34 @@ class uedownload(object):
                     self.download_send_status('Install in progress')
 
                     try:
-                        p = subprocess.Popen(command.encode(sys.getfilesystemencoding()), stderr=subprocess.PIPE, shell=True)
-                        retcode = self.process_timeout(p, self.timeout)
+                        p = subprocess.Popen(command, stderr=subprocess.PIPE, shell=True)
+                        retcode = p.wait(timeout=self.timeout)
                         if retcode != 0:
                             raise Exception(retcode)
-                    except Exception as e:
-                        if str(e) == "None":
-                            err = "Timeout expired"
-                        else:
-                            err = [s.strip() for s in p.stderr.readlines()]
-                            err = ' '.join(err)
-                            if len(err):
-                                err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
-                            else:
-                                err = "Exit code " + str(e)
+                    except subprocess.TimeoutExpired:
+                        p.kill()
+                        err = "Timeout expired"
                         print('Error launching action: ' + err)
                         if sys.platform == 'win32':
-                            self.download_send_status('Error launching action: ' + err.decode(sys.stdout.encoding).encode('utf8'))
+                            self.download_send_status('Error launching action: ' + err.decode(sys.stdout.encoding).encode('utf-8'))
+                            logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
+                        else:
+                            self.download_send_status('Error launching action: ' + err)
+                            logging.exception('Error launching action: ' + err)
+                        if no_break_on_error is True:
+                            status_msg = None
+                        else:
+                            raise
+                    except Exception as e:
+                        err = [s.strip().decode('utf-8') for s in p.stderr.readlines()]
+                        err = ' '.join(err)
+                        if len(err):
+                            err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
+                        else:
+                            err = "Exit code " + str(e)
+                        print('Error launching action: ' + str(err))
+                        if sys.platform == 'win32':
+                            self.download_send_status('Error launching action: ' + err.decode(sys.stdout.encoding).encode('utf-8'))
                             logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
                         else:
                             self.download_send_status('Error launching action: ' + err)
@@ -339,7 +388,7 @@ class uedownload(object):
                     if extended_inventory:
                         response_inventory = uecommunication.send_extended_inventory(self.urlinv, extended_inventory, options)
                     if self.max_download_action > 0:
-                        self.download_action(self.urlinv, str(response_inventory), options)
+                        self.download_action(self.urlinv, response_inventory, options)
                 except:
                     print('Error in loop download action')
                     logging.exception('Error in loop download action')
@@ -364,13 +413,13 @@ class uedownload(object):
     def download_tmp(self, url, file_name, packagesum):
         from zipfile import ZipFile
         try:
-            import urllib2
+            import urllib.request, urllib.error, urllib.parse
             if packagesum is None:
                 return 1
-            u = urllib2.urlopen(url)
+            u = urllib.request.urlopen(url)
             f = open(file_name, 'wb')
             meta = u.info()
-            file_size = int(meta.getheaders('Content-Length')[0])
+            file_size = int(meta.get('Content-Length'))
             print('Downloading: %s Bytes: %s' % (file_name, file_size))
 
             file_size_dl = 0
@@ -404,24 +453,11 @@ class uedownload(object):
             f = open(file_name, 'rb')
             md5 = hashlib.md5()
             while True:
-                data = str(f.read(block_size))
+                data = f.read(block_size)
                 if not data:
                     break
                 md5.update(data)
             f.close()
         except:
             raise
-        return str(md5.hexdigest())
-
-    def process_timeout(self, proc, timeout):
-        while True:
-            status = proc.poll()
-            if status is not None:
-                return status
-            if timeout <= 0:
-                if status is None:
-                    proc.kill()
-                return None
-                break
-            time.sleep(0.5)
-            timeout -= 0.5
+        return md5.hexdigest()

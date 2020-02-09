@@ -1,0 +1,28 @@
+######################
+# UpdatEngine-client #
+######################
+
+4.0.0:
+- Port code to Python 3.7
+
+3.1.1:
+- Support 'install_timeout_X' option in package command where X is an integer to specify its own installation timeout in seconds to a package (default timeout is 30 minutes)
+- Fix program exit on installation error that seems to fix the issue with 'Force inventory now' which didn't work every time
+- Ignore blank lines in command (new line, space or tab)
+
+3.1:
+- Apply server option 'download_no_restart' separately for each package (not one time for all packages in previous that ending the installation process)
+- Add 'no_break_on_error' support to allow to continue deployment even after a package installation error
+
+3.0:
+- Compatible with the UpdatEngine-server versions prior to 3.0
+- Support the new extended conditions (see details in UpdatEngine-server)
+- Need administrator permission to execute
+- Add connection timed out after 30 seconds for all requests
+- Add package installation timed out after 30 minutes.
+- Add option '--version'
+- After each end of all installations, the overall check is done 5 times max to avoid infinite installation of packages (e.g. bad condition)
+- The console output and the logs are cleaner
+- A unique program for Linux distributions based on Debian and Redhat
+- An installer with the '/ forceinstall' option to immediately replace the application if it exists (then no 'Operation completed' in history!)
+
