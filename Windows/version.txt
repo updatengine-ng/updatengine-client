@@ -14,11 +14,11 @@ VSVersionInfo(
       [
       StringTable(
         u'040C04E4',
-        [StringStruct(u'CompanyName', u'UpdatEngine'),
+        [StringStruct(u'CompanyName', u'UpdatEngine-NG'),
         StringStruct(u'FileDescription', u'Windows UpdatEngine client'),
         StringStruct(u'FileVersion', u'4.0.0.0'),
         StringStruct(u'InternalName', u'updatengine-client'),
-        StringStruct(u'LegalCopyright', u''),
+        StringStruct(u'LegalCopyright', u'UpdatEngine-NG'),
         StringStruct(u'OriginalFilename', u'updatengine-client.exe'),
         StringStruct(u'ProductName', u'UpdatEngine Client'),
         StringStruct(u'ProductVersion', u'4.0.0.0')])

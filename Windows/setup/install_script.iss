@@ -7,8 +7,8 @@
 
 #define MyAppName "UpdatEngine client"
 #define MyAppVersion "4.0.0"
-#define MyAppPublisher "UpdatEngine"
-#define MyAppURL "https://github.com/noelmartinon/updatengine-client"
+#define MyAppPublisher "UpdatEngine-NG"
+#define MyAppURL "https://github.com/updatengine-ng/updatengine-client"
 #define MyAppSetupName "updatengine-client-setup"
 #define MyAppSource "..\dist\updatengine-client"
 
@@ -21,7 +21,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={pf}\{#MyAppName}
+DefaultDirName={commonpf}\{#MyAppName}
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\updatengine.ico
 LicenseFile="{#MyAppSource}\LICENSE.txt"
@@ -96,7 +96,7 @@ Source: "{#MyAppSource}\lxml\_elementpath.cp37-win32.pyd"; DestDir: "{app}\lxml"
 Source: "{#MyAppSource}\lxml\etree.cp37-win32.pyd"; DestDir: "{app}\lxml"; Flags: restartreplace ignoreversion
 
 [Registry]
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment\"; ValueName: "Path"; ValueType: ExpandSZ; ValueData: "{reg:HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\,Path};{app}"; Check: "NeedsAddPath(ExpandConstant('{app}'))"; MinVersion: 0.0,5.0; 
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment\"; ValueName: "Path"; ValueType: ExpandSZ; ValueData: "{reg:HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\,Path};{app}"; Check: "NeedsAddPath(ExpandConstant('{app}'))"; MinVersion: 0.0,5.0;
 
 [Run]
 Filename: "{cmd}"; Parameters: "/c copy /Y ""{code:GetCacert}"" ""{app}\cacert.pem"""; Check: "not CheckEmptyCacert"; MinVersion: 0.0,5.0; Flags: runhidden;
@@ -111,11 +111,11 @@ Filename: "schtasks.exe"; Parameters: " /Run /tn ""Updatengine"" "; Check: "Chec
 [UninstallRun]
 Filename: "schtasks.exe"; Parameters: " /Delete /F /TN ""Updatengine""  "; MinVersion: 0.0,5.0; Flags: runhidden;
 Filename: "schtasks.exe"; Parameters: " /Delete /F /TN ""Updatengine-monitor""  "; MinVersion: 0.0,5.0; Flags: runhidden;
-Filename: "taskkill.exe"; Parameters: "/f /t /im updatengine-client.exe"; Flags: runhidden
+Filename: "taskkill.exe"; Parameters: " /f /t /im updatengine-client.exe"; Flags: runhidden
 Filename: "ping.exe"; Parameters: "127.0.0.1 -n 1"; Flags: runhidden
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{app}"; 
+Type: filesandordirs; Name: "{app}";
 
 [CustomMessages]
 en.NameAndVersion=%1 version %2
@@ -194,7 +194,7 @@ fr.LogHeader=Par défaut (case décochée), le client UpdatEngine enregitrera ses é
 fr.LogBox=Cochez cette case pour désactiver la journalisation du client UpdatEngine
 
 [Code]
-var    
+var
   ConfigPage: TInputQueryWizardPage;
   InventoryPage: TInputOptionWizardPage;
   ProxyPage: TInputOptionWizardPage;
@@ -205,8 +205,8 @@ var
 function CmdLineParamExists(const Value: string): Boolean; forward;
 
 // --------------------------------
-// Wizard initialization : Create the pages 
-procedure InitializeWizard;     
+// Wizard initialization : Create the pages
+procedure InitializeWizard;
 begin
   { Config page }
   ConfigPage := CreateInputQueryPage(wpLicense,
@@ -214,7 +214,7 @@ begin
     expandConstant('{cm:TipsConfiguration}'));
   ConfigPage.Add(expandConstant('{cm:Server}'), False);
   ConfigPage.Add(expandConstant('{cm:Delay}'), False);
-  
+
   ConfigPage.Values[0] := GetPreviousData('Server', ExpandConstant('{cm:UrlValue}'));
   ConfigPage.Values[1] := GetPreviousData('Delay', '30');
 
@@ -226,7 +226,7 @@ begin
   { Certificate page }
   SslCertificatePage := CreateInputFilePage(ConfigPage.ID,
     expandConstant('{cm:SslCertificate}'), expandConstant('{cm:SslTips}'),
-    expandConstant('{cm:SslWarning}'));  
+    expandConstant('{cm:SslWarning}'));
   SslCertificatePage.Add(expandConstant('{cm:SslField}'),
     expandConstant('{cm:PemFiles}|*.pem|{cm:AllFiles}|*.*'), '.pem');
 
@@ -265,7 +265,7 @@ begin
   if CmdLineParamExists('/noproxy') = True then
     ProxyPage.Values[0] := True
   else if ParamCount > 1 then
-    ProxyPage.Values[0] := False;    
+    ProxyPage.Values[0] := False;
 
   { Log page }
   LogPage := CreateInputOptionPage(ProxyPage.ID,
@@ -287,7 +287,7 @@ end;
 // --------------------------------
 // Store the settings so we can restore them next time
 procedure RegisterPreviousData(PreviousDataKey: Integer);
-begin  
+begin
   SetPreviousData(PreviousDataKey, 'Server', ConfigPage.Values[0]);
   SetPreviousData(PreviousDataKey, 'Delay', ConfigPage.Values[1]);
   if (Pos('https://',LowerCase(ConfigPage.Values[0])) = 1) then
@@ -298,7 +298,7 @@ begin
   if ProxyPage.Values[0] = True then
     SetPreviousData(PreviousDataKey, 'NoProxy', 'True');
   if LogPage.Values[0] = True then
-    SetPreviousData(PreviousDataKey, 'NoLogging', 'True');  
+    SetPreviousData(PreviousDataKey, 'NoLogging', 'True');
 end;
 
 // --------------------------------
@@ -323,9 +323,9 @@ begin
     exit;
   end;
   // look for the path with leading and trailing semicolon
-  Result := Pos(';' + UpperCase(Param) + ';', ';' + UpperCase(OrigPath) + ';') = 0;   
+  Result := Pos(';' + UpperCase(Param) + ';', ';' + UpperCase(OrigPath) + ';') = 0;
   if Result = True then
-    Result := Pos(';' + UpperCase(Param) + '\;', ';' + UpperCase(OrigPath) + ';') = 0; 
+    Result := Pos(';' + UpperCase(Param) + '\;', ';' + UpperCase(OrigPath) + ';') = 0;
 end;
 
 // --------------------------------
@@ -348,14 +348,14 @@ end;
 function GetServerAdress(Value: string): string;
 begin
   Result := ConfigPage.Values[0];
-end;   
+end;
 
 // --------------------------------
 // Get delay value
 function GetDelay(Value: string): string;
 begin
   Result := ConfigPage.Values[1];
-end; 
+end;
 
 // --------------------------------
 // Get logging value
@@ -363,15 +363,18 @@ function GetLogging(Value: string): string;
 begin
   if not LogPage.Values[0] then
     Result := ExpandConstant('-o \"{app}\updatengine-client.log\"');
-end; 
+end;
 
 // --------------------------------
 // Check if inventory is launched after installation
 function CheckNoInstallInventory: Boolean;
+var
+  ResultCode: Integer;
 begin
   if not InventoryPage.Values[0] then
+    Exec(ExpandConstant('{sys}\schtasks.exe'), '/Run /tn "Updatengine"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
     Result := True;
-end; 
+end;
 
 // --------------------------------
 // Check if certificat file is empty
@@ -379,7 +382,7 @@ end;
 function CheckEmptyCacert: Boolean;
 var
   Size: Integer;
-begin       
+begin
   if (not FileSize(SslCertificatePage.Values[0], Size) or (Size = 0)) or (Pos('https://',LowerCase(ConfigPage.Values[0])) <> 1) then
     Result := True;
 end;
@@ -410,7 +413,7 @@ end;
 // Check if command line parameter exists
 function CmdLineParamExists(const Value: string): Boolean;
 var
-  I: Integer;  
+  I: Integer;
 begin
   Result := False;
   for I := 1 to ParamCount do
