@@ -2,6 +2,10 @@
 # UpdatEngine-client #
 ######################
 
+4.0.1:
+- Using python wmi package instead of wmic commands to fix errors due to the shell encoding characters
+- Update InnoSetup script
+
 4.0.0:
 - Port code to Python 3.7
 

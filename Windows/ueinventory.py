@@ -29,10 +29,12 @@ import sys
 from lxml import etree
 import time
 import ueconst
+import wmi
 
 
 class ueinventory(object):
     xml = None
+    wmi_conn = wmi.WMI()
 
     @staticmethod
     def build_inventory():
@@ -57,22 +59,6 @@ class ueinventory(object):
         if serial == manufacturer == product == domain == uuid == username == 'Unknown':
             raise Exception('Too many detection error: build_inventory aborted')
 
-        # ~ print(manufacturer)
-        # ~ print(product)
-        # ~ print(serial)
-        # ~ print(uuid)
-        # ~ print(domain)
-        # ~ print(language)
-        # ~ print(hostname)
-        # ~ print("chassistype "+chassistype)
-        # ~ print(osdata)
-        # ~ print(ossum)
-        # ~ #print(softwaredata)
-        # ~ print(softsum)
-        # ~ print(netdata)
-        # ~ print(netsum)
-        # ~ print('username'+username)
-
         data = \
             '<Inventory>' \
             '<ClientVersion>' + ueconst.UE_CLIENT_VERSION + '</ClientVersion>' \
@@ -92,7 +78,6 @@ class ueinventory(object):
             + softwaredata \
             + netdata + \
             '</Inventory>'
-        #print(data, softsum)
         return (data, softsum)
 
     @staticmethod
@@ -117,50 +102,37 @@ class ueinventory(object):
 
     def get_hostname(self):
         try:
-            args = 'wmic computersystem get name'
-            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            return p.stdout.readlines()[1].decode(sys.stdout.encoding)
+            return self.wmi_conn.Win32_ComputerSystem()[0].Caption
         except:
             return 'Unkown'
 
     def get_serial(self):
         try:
-            args = 'wmic bios get serialnumber'
-            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            return p.stdout.readlines()[1].decode(sys.stdout.encoding)
+            return self.wmi_conn.Win32_BIOS()[0].SerialNumber
         except:
             return 'Unknown'
 
     def get_manufacturer(self):
         try:
-            args = 'wmic csproduct get vendor'
-            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            return p.stdout.readlines()[1].decode(sys.stdout.encoding)
+            return self.wmi_conn.Win32_ComputerSystem()[0].Manufacturer
         except:
             return 'Unknown'
 
     def get_uuid(self):
         try:
-            args = 'wmic path win32_computersystemproduct get uuid'
-            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            return p.stdout.readlines()[1].decode(sys.stdout.encoding)
+            return self.wmi_conn.Win32_ComputerSystemProduct()[0].UUID
         except:
             return 'Unknown'
 
     def get_username(self):
         try:
-            args = 'wmic computersystem get username'
-            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            dom_user = p.stdout.readlines()[1].decode(sys.stdout.encoding)
-            return dom_user.split('\\')[1]
+            return self.wmi_conn.Win32_ComputerSystem()[0].UserName.split('\\')[1]
         except:
             return 'Unknown'
 
     def get_domain(self):
         try:
-            args = 'wmic computersystem get domain'
-            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            return p.stdout.readlines()[1].decode(sys.stdout.encoding)
+            return self.wmi_conn.Win32_ComputerSystem()[0].Domain
         except:
             return 'Unknown'
 
@@ -173,9 +145,7 @@ class ueinventory(object):
 
     def get_product(self):
         try:
-            args = 'wmic csproduct get name'
-            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            return p.stdout.readlines()[1].decode(sys.stdout.encoding)
+            return self.wmi_conn.Win32_ComputerSystem()[0].Model
         except:
             return 'Unknown'
 
@@ -188,10 +158,7 @@ class ueinventory(object):
             'Multi-system chassis', 'Compact PCI', 'Advanced TCA','Blade','Blade Enclosure',\
             'Tablet','Convertible','Detachable','IoT Gateway','Embedded PC','Mini PC','Stick PC')
         try:
-            args = 'wmic systemenclosure get chassistypes'
-            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            typestring =  p.stdout.readlines()[1].decode(sys.stdout.encoding)
-            chassisnumber = int(re.findall(r'\d+',typestring)[0])
+            chassisnumber = int(self.wmi_conn.Win32_SystemEnclosure()[0].ChassisTypes[0])
             return chassis[chassisnumber-1]
         except:
             return 'Detection error'
@@ -269,36 +236,13 @@ class ueinventory(object):
         return text
 
     def get_netlist(self):
-        args = 'wmic nicconfig get ipaddress, macaddress, ipsubnet /format:list'
-        p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         netlist = list()
         try:
-            while True:
-                n=p.stdout.readline().decode('utf-8')
-                line=n.rstrip()
-                if not n: break
-                line = line.split('=')
-                if len(line) == 2:
-                    if line[1] != '' :
-                        if line[0] == 'IPAddress':
-                            ip = re.sub('[{"}]','', line[1])
-                            ipsplit = ip.split(',')
-                            if len(ipsplit) == 2:
-                                ip = ipsplit[0]
-                            if ip == '127.0.0.1':
-                                continue
-                            n=p.stdout.readline().decode('utf-8')
-                            line=n.rstrip()
-                            line = line.split('=')
-                            mask = re.sub('[{"}]','',line[1])
-                            masksplit = mask.split(',')
-                            if len(masksplit) == 2:
-                                mask = masksplit[0]
-                            n=p.stdout.readline().decode('utf-8')
-                            line = n.rstrip()
-                            line = line.split('=')
-                            mac = line[1]
-                            netlist.append(ip + ',' + mask + ',' + mac)
+            for q in self.wmi_conn.Win32_NetworkAdapterConfiguration(['IPAddress', 'IPSubnet', 'MACAddress', 'IPEnabled'], IPEnabled=1):
+                ip = q.IPAddress[0]
+                mask = q.IPSubnet[0]
+                mac = q.MACAddress
+                netlist.append(ip + ',' + mask + ',' + mac)
         except:
             print('Error when building netlist')
         return netlist
@@ -316,32 +260,15 @@ class ueinventory(object):
                     '</Network>'
         return ndata
 
-    def get_registry_value(self, key, subkey, value):
-        try:
-            aReg = ConnectRegistry(None, key)
-            aKey = OpenKey(aReg, subkey)
-            aVal = QueryValueEx(aKey, value)
-            return aVal[0]
-        except OSError:
-            return 'Unknown'
-
     def get_oslist(self):
-        def get(key):
-            return self.get_registry_value(
-                HKEY_LOCAL_MACHINE,
-                "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-                key)
-
         oslist = list()
         try:
-            args = 'wmic os get csdversion, osarchitecture, systemdrive, version /format:list'
-            p = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            raw = p.stdout.readlines()
-            name = get("ProductName")
-            csdversion = raw[2].decode('utf-8').split('=',1)[1].strip()
-            arch = raw[3].decode('utf-8').split('=',1)[1].strip()
-            systemdrive = raw[4].decode('utf-8').split('=',1)[1].strip()
-            versionbuild = raw[5].decode('utf-8').split('=',1)[1].strip()
+            for q in self.wmi_conn.Win32_OperatingSystem():
+                name = q.Caption
+                csdversion = q.CSDVersion
+                arch = q.OSArchitecture
+                versionbuild = q.Version
+                systemdrive = q.SystemDrive
             if csdversion:
                 version = versionbuild + ' - ' + csdversion
             else:

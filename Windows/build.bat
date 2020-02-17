@@ -3,7 +3,7 @@
 REM Install python : https://www.python.org/downloads/
 REM Activate pip : python -m ensurepip
 REM Upgrade pip : python -m pip install --upgrade pip
-REM Install packages : python -m pip install lxml pywin32 PyInstaller
+REM Install packages : python -m pip install lxml pywin32 PyInstaller wmi
 
 set PathInstall=%~dp0
 

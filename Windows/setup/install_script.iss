@@ -6,7 +6,7 @@
 ;
 
 #define MyAppName "UpdatEngine client"
-#define MyAppVersion "4.0.0"
+#define MyAppVersion "4.0.1"
 #define MyAppPublisher "UpdatEngine-NG"
 #define MyAppURL "https://github.com/updatengine-ng/updatengine-client"
 #define MyAppSetupName "updatengine-client-setup"
@@ -16,6 +16,7 @@
 AppId={{74B4EB48-7DE3-4708-B36D-7D40F1426658}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
+AppCopyright=Copyright (C) 2020 {#MyAppPublisher}
 VersionInfoVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
@@ -41,6 +42,7 @@ Source: "{#MyAppSource}\_hashlib.pyd"; DestDir: "{app}"; Flags: restartreplace i
 Source: "{#MyAppSource}\_lzma.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\_socket.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\_ssl.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\_win32sysloader.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\api-ms-win-core-console-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\api-ms-win-core-datetime-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\api-ms-win-core-debug-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
@@ -73,6 +75,7 @@ Source: "{#MyAppSource}\api-ms-win-crt-filesystem-l1-1-0.dll"; DestDir: "{app}";
 Source: "{#MyAppSource}\api-ms-win-crt-heap-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\api-ms-win-crt-locale-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\api-ms-win-crt-math-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\api-ms-win-crt-multibyte-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\api-ms-win-crt-process-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\api-ms-win-crt-runtime-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\api-ms-win-crt-stdio-l1-1-0.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
@@ -83,8 +86,11 @@ Source: "{#MyAppSource}\base_library.zip"; DestDir: "{app}"; Flags: restartrepla
 Source: "{#MyAppSource}\libcrypto-1_1.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\libssl-1_1.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\LICENSE.txt"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\mfc140u.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\pyexpat.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\python37.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\pythoncom37.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\pywintypes37.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\select.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\ucrtbase.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\unicodedata.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
@@ -92,6 +98,9 @@ Source: "{#MyAppSource}\updatengine-client.exe"; DestDir: "{app}"; Flags: restar
 Source: "{#MyAppSource}\updatengine-client.exe.manifest"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\updatengine.ico"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\VCRUNTIME140.dll"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\win32api.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\win32trace.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
+Source: "{#MyAppSource}\win32ui.pyd"; DestDir: "{app}"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\lxml\_elementpath.cp37-win32.pyd"; DestDir: "{app}\lxml"; Flags: restartreplace ignoreversion
 Source: "{#MyAppSource}\lxml\etree.cp37-win32.pyd"; DestDir: "{app}\lxml"; Flags: restartreplace ignoreversion
 
