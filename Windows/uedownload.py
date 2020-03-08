@@ -117,30 +117,22 @@ class uedownload(object):
                             p.kill()
                             err = "Timeout expired"
                             print('Error launching action: ' + err)
-                            if sys.platform == 'win32':
-                                logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
-                            else:
-                                logging.exception('Error launching action: ' + err)
-                            if no_break_on_error is True:
-                                status_msg = None
-                            else:
-                                raise
+                            logging.exception('Error launching action: ' + err)
+                            raise
                         except Exception as e:
-                            err = [s.strip().decode('utf-8') for s in p.stderr.readlines()]
+                            import locale
+                            console_encoding = locale.getpreferredencoding()
+                            if console_encoding == 'cp1252':
+                                console_encoding = 'cp850'
+                            err = [s.strip().decode(console_encoding) for s in p.stderr.readlines()]
                             err = ' '.join(err)
                             if len(err):
                                 err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
                             else:
                                 err = "Exit code " + str(e)
                             print('Error launching action: ' + str(err))
-                            if sys.platform == 'win32':
-                                logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
-                            else:
-                                logging.exception('Error launching action: ' + err)
-                            if no_break_on_error is True:
-                                status_msg = None
-                            else:
-                                raise
+                            logging.exception('Error launching action: ' + err)
+                            raise
                         finally:
                             # come back to gettemdir to remove updatengine directory
                             try:
@@ -162,30 +154,22 @@ class uedownload(object):
                         p.kill()
                         err = "Timeout expired"
                         print('Error launching action: ' + err)
-                        if sys.platform == 'win32':
-                            logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
-                        else:
-                            logging.exception('Error launching action: ' + err)
-                        if no_break_on_error is True:
-                            status_msg = None
-                        else:
-                            raise
+                        logging.exception('Error launching action: ' + err)
+                        raise
                     except Exception as e:
-                        err = [s.strip().decode('utf-8') for s in p.stderr.readlines()]
+                        import locale
+                        console_encoding = locale.getpreferredencoding()
+                        if console_encoding == 'cp1252':
+                            console_encoding = 'cp850'
+                        err = [s.strip().decode(console_encoding) for s in p.stderr.readlines()]
                         err = ' '.join(err)
                         if len(err):
                             err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
                         else:
                             err = "Exit code " + str(e)
                         print('Error launching action: ' + str(err))
-                        if sys.platform == 'win32':
-                            logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
-                        else:
-                            logging.exception('Error launching action: ' + err)
-                        if no_break_on_error is True:
-                            status_msg = None
-                        else:
-                            raise
+                        logging.exception('Error launching action: ' + err)
+                        raise
 
                 self.download_print_time()
                 print('Operation completed')
@@ -283,30 +267,26 @@ class uedownload(object):
                             p.kill()
                             err = "Timeout expired"
                             print('Error launching action: ' + err)
-                            if sys.platform == 'win32':
-                                self.download_send_status('Error launching action: ' + err.decode(sys.stdout.encoding).encode('utf-8'))
-                                logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
-                            else:
-                                self.download_send_status('Error launching action: ' + err)
-                                logging.exception('Error launching action: ' + err)
+                            self.download_send_status('Error launching action: ' + err)
+                            logging.exception('Error launching action: ' + err)
                             if no_break_on_error is True:
                                 status_msg = None
                             else:
                                 raise
                         except Exception as e:
-                            err = [s.strip().decode('utf-8') for s in p.stderr.readlines()]
+                            import locale
+                            console_encoding = locale.getpreferredencoding()
+                            if console_encoding == 'cp1252':
+                                console_encoding = 'cp850'
+                            err = [s.strip().decode(console_encoding) for s in p.stderr.readlines()]
                             err = ' '.join(err)
                             if len(err):
                                 err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
                             else:
                                 err = "Exit code " + str(e)
                             print('Error launching action: ' + str(err))
-                            if sys.platform == 'win32':
-                                self.download_send_status('Error launching action: ' + err.decode(sys.stdout.encoding).encode('utf-8'))
-                                logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
-                            else:
-                                self.download_send_status('Error launching action: ' + err)
-                                logging.exception('Error launching action: ' + err)
+                            self.download_send_status('Error launching action: ' + err)
+                            logging.exception('Error launching action: ' + err)
                             if no_break_on_error is True:
                                 status_msg = None
                             else:
@@ -333,30 +313,26 @@ class uedownload(object):
                         p.kill()
                         err = "Timeout expired"
                         print('Error launching action: ' + err)
-                        if sys.platform == 'win32':
-                            self.download_send_status('Error launching action: ' + err.decode(sys.stdout.encoding).encode('utf-8'))
-                            logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
-                        else:
-                            self.download_send_status('Error launching action: ' + err)
-                            logging.exception('Error launching action: ' + err)
+                        self.download_send_status('Error launching action: ' + err)
+                        logging.exception('Error launching action: ' + err)
                         if no_break_on_error is True:
                             status_msg = None
                         else:
                             raise
                     except Exception as e:
-                        err = [s.strip().decode('utf-8') for s in p.stderr.readlines()]
+                        import locale
+                        console_encoding = locale.getpreferredencoding()
+                        if console_encoding == 'cp1252':
+                            console_encoding = 'cp850'
+                        err = [s.strip().decode(console_encoding) for s in p.stderr.readlines()]
                         err = ' '.join(err)
                         if len(err):
                             err = err[:450] + ('...' if len(err) > 450 else '') + " | Exit code " + str(e)
                         else:
                             err = "Exit code " + str(e)
                         print('Error launching action: ' + str(err))
-                        if sys.platform == 'win32':
-                            self.download_send_status('Error launching action: ' + err.decode(sys.stdout.encoding).encode('utf-8'))
-                            logging.exception('Error launching action: ' + err.decode(sys.stdout.encoding).encode('iso-8859-1'))
-                        else:
-                            self.download_send_status('Error launching action: ' + err)
-                            logging.exception('Error launching action: ' + err)
+                        self.download_send_status('Error launching action: ' + err)
+                        logging.exception('Error launching action: ' + err)
                         if no_break_on_error is True:
                             status_msg = None
                         else:
