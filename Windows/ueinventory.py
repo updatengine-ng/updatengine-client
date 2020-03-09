@@ -164,57 +164,36 @@ class ueinventory(object):
             return 'Detection error'
 
     def get_softwarelist(self):
-        l = list()
-        # try to read in registry for 64 bits OS
-        try:
-            aReg = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
-            aKey = OpenKey(aReg, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall',0, KEY_READ | KEY_WOW64_64KEY)
-
-            for i in range(1024):
+        def get_softwarelist_from_registry(hive, flag):
+            aReg = ConnectRegistry(None, hive)
+            aKey = OpenKey(aReg, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",0, KEY_READ | flag)
+            count_subkey = QueryInfoKey(aKey)[0]
+            software_list = set()
+            for i in range(count_subkey):
+                software = {}
                 try:
-                    asubkey_name=EnumKey(aKey,i)
-                    asubkey=OpenKey(aKey,asubkey_name)
-                    val=QueryValueEx(asubkey, 'DisplayName')
+                    asubkey_name = EnumKey(aKey, i)
+                    asubkey = OpenKey(aKey, asubkey_name)
+                    software['name'] = QueryValueEx(asubkey, "DisplayName")[0]
                     try:
-                        vers = QueryValueEx(asubkey, 'DisplayVersion')
+                        software['version'] = QueryValueEx(asubkey, "DisplayVersion")[0]
                     except:
-                        vers = ('undefined',)
+                        software['version'] = 'undefined'
                     try:
-                        uninst = QueryValueEx(asubkey, 'UninstallString')
+                        software['uninstallstring'] = QueryValueEx(asubkey, "UninstallString")[0]
                     except:
-                        uninst = ('undefined',)
-                    l.append(val[0] + ',;,' + vers[0] + ',;,' + uninst[0])
+                        software['uninstallstring'] = 'undefined'
+                    software_list.add(software['name'] + ',;,' + software['version'] + ',;,' + software['uninstallstring'])
                 except:
-                    pass
-        except:
-            pass
+                    continue
+            return software_list
 
-        # Then read on 32 bits, because 32bits version of python is used
-        try:
-            aReg = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
-            aKey = OpenKey(aReg, r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall')
-
-            for i in range(1024):
-                try:
-                    asubkey_name=EnumKey(aKey,i)
-                    asubkey=OpenKey(aKey,asubkey_name)
-                    val=QueryValueEx(asubkey, 'DisplayName')
-                    try:
-                        vers = QueryValueEx(asubkey, 'DisplayVersion')
-                    except:
-                        vers = ('undefined',)
-                    try:
-                        uninst = QueryValueEx(asubkey, 'UninstallString')
-                    except:
-                        uninst = ('undefined',)
-                    # Prevent double detection for 32 bits systels
-                    if not val[0] + ',;,' + vers[0] + ',;,' + uninst[0] in l:
-                           l.append(val[0] + ',;,' + vers[0] + ',;,' + uninst[0])
-                except:
-                    pass
-        except:
-            pass
-        return l
+        software_list = list(set().union(\
+            get_softwarelist_from_registry(HKEY_LOCAL_MACHINE, KEY_WOW64_32KEY),\
+            get_softwarelist_from_registry(HKEY_LOCAL_MACHINE, KEY_WOW64_64KEY),\
+            get_softwarelist_from_registry(HKEY_CURRENT_USER, 0)
+            ))
+        return software_list
 
     def format_softlist(self, slist):
         sdata = ''
