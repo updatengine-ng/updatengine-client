@@ -2,6 +2,10 @@
 # UpdatEngine-client #
 ######################
 
+4.1.0:
+- Fix bug on encodage response when an installation failed
+- Optimize get_softwarelist function
+
 4.0.1:
 - Using python wmi package instead of wmic commands to fix errors due to the shell encoding characters
 - Update InnoSetup script
