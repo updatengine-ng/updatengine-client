@@ -13,6 +13,9 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
+PY_VER=3.7
+INST_DIR=/opt/updatengine-client/
+
 UE_url=""
 UE_delay=""
 UE_cert=""
@@ -31,7 +34,7 @@ do
 done
 
 if [ -z "$UE_url" ]; then
-  echo "The UpdatEngine web server is required" 1>&2
+  echo "Error option missing: The UpdatEngine web server is required" 1>&2
   exit 1
 fi
 
@@ -40,27 +43,30 @@ if [ -z "$UE_delay" ]; then
   UE_delay=30
 fi
 
-#apt install python-dmidecode python-libxml2 python-lxml python-netifaces python-psutil unzip
-sudo apt-get install python3.7 python3.7-dev
-sudo pip3 install testresources setuptools dmiparse psutil lxml py-dmidecode netifaces
+apt install python3.7 python3.7-dev python3-pip python3.7-venv unzip -y
+python${PY_VER} -m venv ${INST_DIR}
+source ${INST_DIR}/bin/activate
+${INST_DIR}/bin/python3 -m pip install testresources setuptools dmiparse psutil lxml py-dmidecode netifaces
+
 pkill -f updatengine-client.py
 wget https://github.com/updatengine-ng/updatengine-client/archive/master.zip -O /tmp/ue-client.zip && unzip -o /tmp/ue-client.zip -d /tmp/ && rm /tmp/ue-client.zip
 mkdir -p /opt/updatengine-client
-yes | cp -rf /tmp/updatengine-client-master/* /opt/updatengine-client/
+yes | cp -rf /tmp/updatengine-client-master/Linux/* /opt/updatengine-client/
+rm -rf /tmp/updatengine-client-master
 
 if [ -n "$UE_cert" ]; then
-  echo "Copy SSL cert '$UE_cert' to '/opt/updatengine-client/Linux/cacert.pem'"
-  yes | cp -rf "$UE_cert"  "/opt/updatengine-client/Linux/cacert.pem" > /dev/null 2>&1
+  echo "Copy SSL cert '$UE_cert' to '/opt/updatengine-client/cacert.pem'"
+  yes | cp -rf "$UE_cert"  "/opt/updatengine-client/cacert.pem" > /dev/null 2>&1
   if [ "$?" -gt "0" ]; then
     echo "Error: Problem with SSL cert. Installation aborted"
     exit 1
   fi
-  UE_cert=" -c /opt/updatengine-client/Linux/cacert.pem"
+  UE_cert=" -c /opt/updatengine-client/cacert.pem"
 fi
 
-chmod +x /opt/updatengine-client/Linux/updatengine-client.py
-echo "*/$UE_delay * * * *   root   cd /opt/updatengine-client && /opt/updatengine-client/Linux/updatengine-client.py -i -s $UE_url -m $UE_delay$UE_cert$UE_noproxy" > /etc/cron.d/updatengine-client
+chmod +x /opt/updatengine-client/updatengine-client.py
+echo "*/$UE_delay * * * *   root   ps aux | grep -v 'grep' | grep 'updatengine-client.py' || cd /opt/updatengine-client && /opt/updatengine-client/bin/python"${PY_VER}" /opt/updatengine-client/updatengine-client.py -i -s $UE_url -m $UE_delay$UE_cert$UE_noproxy" > /etc/cron.d/updatengine-client
 cd /opt/updatengine-client
-nohup /opt/updatengine-client/Linux/updatengine-client.py -i -s $UE_url -m $UE_delay$UE_cert$UE_noproxy >/dev/null 2>&1 &
+nohup /opt/updatengine-client/updatengine-client.py -i -s $UE_url -m $UE_delay$UE_cert$UE_noproxy >/dev/null 2>&1 &
 cd - > /dev/null
 echo "Installation completed"
