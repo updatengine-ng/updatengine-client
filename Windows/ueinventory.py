@@ -165,28 +165,31 @@ class ueinventory(object):
 
     def get_softwarelist(self):
         def get_softwarelist_from_registry(hive, flag):
-            aReg = ConnectRegistry(None, hive)
-            aKey = OpenKey(aReg, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",0, KEY_READ | flag)
-            count_subkey = QueryInfoKey(aKey)[0]
-            software_list = set()
-            for i in range(count_subkey):
-                software = {}
-                try:
-                    asubkey_name = EnumKey(aKey, i)
-                    asubkey = OpenKey(aKey, asubkey_name)
-                    software['name'] = QueryValueEx(asubkey, "DisplayName")[0]
+            try:
+                aReg = ConnectRegistry(None, hive)
+                aKey = OpenKey(aReg, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",0, KEY_READ | flag)
+                count_subkey = QueryInfoKey(aKey)[0]
+                software_list = set()
+                for i in range(count_subkey):
+                    software = {}
                     try:
-                        software['version'] = QueryValueEx(asubkey, "DisplayVersion")[0]
+                        asubkey_name = EnumKey(aKey, i)
+                        asubkey = OpenKey(aKey, asubkey_name)
+                        software['name'] = QueryValueEx(asubkey, "DisplayName")[0]
+                        try:
+                            software['version'] = QueryValueEx(asubkey, "DisplayVersion")[0]
+                        except:
+                            software['version'] = 'undefined'
+                        try:
+                            software['uninstallstring'] = QueryValueEx(asubkey, "UninstallString")[0]
+                        except:
+                            software['uninstallstring'] = 'undefined'
+                        software_list.add(software['name'] + ',;,' + software['version'] + ',;,' + software['uninstallstring'])
                     except:
-                        software['version'] = 'undefined'
-                    try:
-                        software['uninstallstring'] = QueryValueEx(asubkey, "UninstallString")[0]
-                    except:
-                        software['uninstallstring'] = 'undefined'
-                    software_list.add(software['name'] + ',;,' + software['version'] + ',;,' + software['uninstallstring'])
-                except:
-                    continue
-            return software_list
+                        continue
+                return software_list
+            except:
+                return set()
 
         software_list = list(set().union(\
             get_softwarelist_from_registry(HKEY_LOCAL_MACHINE, KEY_WOW64_32KEY),\

@@ -12,7 +12,7 @@ The installation can be done by the graphical interface of the setup. Below only
 #### Example with an SSL certificat and immediate replacement of an existing installation
 If installed from an UE-Server then there is no 'Operation completed' in deployment history due to the termination of the existing UE-Client instance, which therefore cannot send this message to the server.
 ```
-updatengine-client-setup-4.1.0.exe /verysilent /server=https://UE-SERVER_IP:1979 /noproxy /delay=30 /cert="%CD%\cacert.pem" /norestart /forceinstall
+updatengine-client-setup-4.1.1.exe /verysilent /server=https://UE-SERVER_IP:1979 /noproxy /delay=30 /cert="%CD%\cacert.pem" /norestart /forceinstall
 ```
 
 ### Linux
