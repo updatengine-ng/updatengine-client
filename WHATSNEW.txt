@@ -2,6 +2,9 @@
 # UpdatEngine-client #
 ######################
 
+4.1.1:
+- Fix bug on current user inventory
+
 4.1.0:
 - Fix bug on encodage response when an installation failed
 - Optimize get_softwarelist function
