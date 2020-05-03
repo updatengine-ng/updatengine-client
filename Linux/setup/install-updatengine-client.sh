@@ -14,7 +14,7 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 PY_VER=3.7
-INST_DIR=/opt/updatengine-client/
+INST_DIR=/opt/updatengine-client
 
 UE_url=""
 UE_delay=""
@@ -43,7 +43,7 @@ if [ -z "$UE_delay" ]; then
   UE_delay=30
 fi
 
-apt install python3.7 python3.7-dev python3-pip python3.7-venv unzip -y
+apt install python${PY_VER} python${PY_VER}-dev python3-pip python${PY_VER}-venv unzip -y
 python${PY_VER} -m venv ${INST_DIR}
 source ${INST_DIR}/bin/activate
 ${INST_DIR}/bin/python3 -m pip install testresources setuptools dmiparse psutil lxml py-dmidecode netifaces
@@ -65,8 +65,9 @@ if [ -n "$UE_cert" ]; then
 fi
 
 chmod +x /opt/updatengine-client/updatengine-client.py
-echo "*/$UE_delay * * * *   root   ps aux | grep -v 'grep' | grep 'updatengine-client.py' || cd /opt/updatengine-client && /opt/updatengine-client/bin/python"${PY_VER}" /opt/updatengine-client/updatengine-client.py -i -s $UE_url -m $UE_delay$UE_cert$UE_noproxy" > /etc/cron.d/updatengine-client
+echo "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin" > /etc/cron.d/updatengine-client
+echo "*/$UE_delay * * * *   root   ps aux | grep -v 'grep' | grep 'updatengine-client.py' || cd $INST_DIR && $INST_DIR/bin/python $INST_DIR/updatengine-client.py -i -s $UE_url -m $UE_delay$UE_cert$UE_noproxy" >> /etc/cron.d/updatengine-client
 cd /opt/updatengine-client
-nohup /opt/updatengine-client/updatengine-client.py -i -s $UE_url -m $UE_delay$UE_cert$UE_noproxy >/dev/null 2>&1 &
+nohup bin/python updatengine-client.py -i -s $UE_url -m $UE_delay$UE_cert$UE_noproxy >/dev/null 2>&1 &
 cd - > /dev/null
 echo "Installation completed"
