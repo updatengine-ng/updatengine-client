@@ -40,7 +40,7 @@ class uedownload(object):
     mid = None
     pid = None
     max_download_action = 5  # Parameter to avoid infinite loops
-    default_timeout = 1800
+    default_timeout = 600
     timeout = default_timeout
 
     def download_pack(self, url, pack, options):
