@@ -26,6 +26,7 @@ import urllib.error
 import socket
 from lxml import etree
 from ueerrors import *
+import ueconst
 
 
 class uecommunication(object):
@@ -103,6 +104,7 @@ class uecommunication(object):
             parameter = urllib.parse.urlencode(dict(action=action, xml=xml, csrfmiddlewaretoken=csrf_cookie.value)).encode("utf-8")
             req = urllib.request.Request(url, parameter)
             req.add_header('Referer', url)
+            req.add_header("User-agent", "UpdatEngine/" + ueconst.UE_CLIENT_VERSION)
             response = urllib.request.urlopen(req).read()
         except Exception:
             raise
