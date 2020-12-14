@@ -20,6 +20,7 @@
 ###############################################################################
 
 import platform
+import distro
 import subprocess
 import os
 import dmidecode
@@ -223,9 +224,8 @@ class ueinventory(object):
 
     def get_oslist(self):
         oslist = list()
-        ostuple = platform.linux_distribution()
-        name = ostuple[0]
-        version = ostuple[1] + ' - ' + ostuple[2]
+        name = distro.os_release_info()['name']
+        version = distro.os_release_info()['version']
         arch = os.uname()[4]
         systemdrive = '-'
         oslist.append(name + ', ' + version + ', ' + arch + ', ' + systemdrive)
