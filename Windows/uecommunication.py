@@ -83,6 +83,7 @@ class uecommunication(object):
         urllib.request.install_opener(opener)
 
         try:
+            opener.addheaders = [('User-Agent', 'UpdatEngine-client/'+ueconst.UE_CLIENT_VERSION)]
             opener.open(url)
         except IOError as e:
             if hasattr(e, 'reason'):
@@ -104,7 +105,6 @@ class uecommunication(object):
             parameter = urllib.parse.urlencode(dict(action=action, xml=xml, csrfmiddlewaretoken=csrf_cookie.value)).encode("utf-8")
             req = urllib.request.Request(url, parameter)
             req.add_header('Referer', url)
-            req.add_header("User-agent", "UpdatEngine/" + ueconst.UE_CLIENT_VERSION)
             response = urllib.request.urlopen(req).read()
         except Exception:
             raise
@@ -165,6 +165,7 @@ class uecommunication(object):
         urllib.request.install_opener(opener)
 
         try:
+            opener.addheaders = [('User-Agent', 'UpdatEngine-client/'+ueconst.UE_CLIENT_VERSION)]
             opener.open(url)
         except IOError as e:
             if hasattr(e, 'reason'):
