@@ -42,6 +42,7 @@ class uedownload(object):
     max_download_action = 5  # Parameter to avoid infinite loops
     default_timeout = 600
     timeout = default_timeout
+    tmpdir = None
 
     def download_pack(self, url, pack, options):
         packxml = uecommunication.get_public_software_list(url, options, pack)
@@ -93,10 +94,10 @@ class uedownload(object):
 
                 if packagesum != 'nofile':
                     try:
-                        tmpdir = tempfile.gettempdir()+'/updatengine/'
-                        if not os.path.exists(tmpdir):
-                            os.makedirs(tmpdir)
-                        file_name = tmpdir+url.split('/')[-1]
+                        self.tmpdir = tempfile.gettempdir()+'/updatengine/'+next(tempfile._get_candidate_names())+"/"
+                        if not os.path.exists(self.tmpdir):
+                            os.makedirs(self.tmpdir)
+                        file_name = self.tmpdir+url.split('/')[-1]
                         self.download_tmp(url, file_name, packagesum)
                     except:
                         self.download_print_time()
@@ -108,7 +109,7 @@ class uedownload(object):
                         logging.info('Install in progress')
 
                         try:
-                            os.chdir(tmpdir)
+                            os.chdir(self.tmpdir)
                             p = subprocess.Popen(command, stderr=subprocess.PIPE, shell=True)
                             retcode = p.wait(timeout=self.timeout)
                             if retcode != 0:
@@ -134,10 +135,9 @@ class uedownload(object):
                             logging.exception('Error launching action: ' + err)
                             raise
                         finally:
-                            # come back to gettemdir to remove updatengine directory
                             try:
                                 os.chdir(tempfile.gettempdir())
-                                shutil.rmtree(tmpdir)
+                                shutil.rmtree(tempfile.gettempdir()+'/updatengine/')
                             except:
                                 print('Can\'t delete temp file')
                                 logging.info('Can\'t delete temp file')
@@ -241,10 +241,10 @@ class uedownload(object):
 
                 if packagesum != 'nofile':
                     try:
-                        tmpdir = tempfile.gettempdir()+'/updatengine/'
-                        if not os.path.exists(tmpdir):
-                            os.makedirs(tmpdir)
-                        file_name = tmpdir+url.split('/')[-1]
+                        self.tmpdir = tempfile.gettempdir()+'/updatengine/'+next(tempfile._get_candidate_names())+"/"
+                        if not os.path.exists(self.tmpdir):
+                            os.makedirs(self.tmpdir)
+                        file_name = self.tmpdir+url.split('/')[-1]
                         self.download_tmp(url, file_name, packagesum)
                     except:
                         self.download_print_time()
@@ -258,7 +258,7 @@ class uedownload(object):
                         self.download_send_status('Install in progress')
 
                         try:
-                            os.chdir(tmpdir)
+                            os.chdir(self.tmpdir)
                             p = subprocess.Popen(command, stderr=subprocess.PIPE, shell=True)
                             retcode = p.wait(timeout=self.timeout)
                             if retcode != 0:
@@ -292,10 +292,9 @@ class uedownload(object):
                             else:
                                 raise
                         finally:
-                            # come back to gettempdir to remove updatengine directory
                             try:
                                 os.chdir(tempfile.gettempdir())
-                                shutil.rmtree(tmpdir)
+                                shutil.rmtree(tempfile.gettempdir()+'/updatengine/')
                             except:
                                 print('Can\'t delete temp file')
                                 logging.info('Can\'t delete temp file')
@@ -345,8 +344,8 @@ class uedownload(object):
                     logging.info('Operation completed')
 
             if not root.findall('Package'):
-                print('No package to install')
-                logging.info('No package to install')
+                print('Done, no package to install')
+                logging.info('Done, no package to install')
         except:
             print('Error detected when launching download_action')
             logging.exception('Error detected when lauching download_action')
@@ -356,7 +355,10 @@ class uedownload(object):
             if download_launch:
                 try:
                     self.download_print_time()
-                    print('End of download and install')
+                    if self.max_download_action == 0:
+                        print('End of download and install')
+                    else:
+                        print('Perform a new check')
                     time.sleep(5)
                     inventory = ueinventory.build_inventory()
                     response_inventory = uecommunication.send_inventory(self.urlinv, inventory[0], options)
@@ -414,7 +416,7 @@ class uedownload(object):
             if self.md5_for_file(file_name) == packagesum:
                 print('')
                 if str(file_name).lower().endswith('.zip'):
-                    ZipFile(file_name).extractall(tempfile.gettempdir() + '/updatengine/')
+                    ZipFile(file_name).extractall(self.tmpdir)
                 return 1
             else:
                 print('md5 don\'t match: ' + self.md5_for_file(file_name) + ' --- ' + packagesum)
