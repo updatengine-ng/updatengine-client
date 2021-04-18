@@ -1,7 +1,7 @@
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(4, 1, 1, 0),
-    prodvers=(4, 1, 1, 0),
+    filevers=(4, 1, 2, 0),
+    prodvers=(4, 1, 2, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -16,12 +16,12 @@ VSVersionInfo(
         u'040C04E4',
         [StringStruct(u'CompanyName', u'UpdatEngine-NG'),
         StringStruct(u'FileDescription', u'Windows UpdatEngine client'),
-        StringStruct(u'FileVersion', u'4.1.1.0'),
+        StringStruct(u'FileVersion', u'4.1.2.0'),
         StringStruct(u'InternalName', u'updatengine-client'),
         StringStruct(u'LegalCopyright', u'UpdatEngine-NG'),
         StringStruct(u'OriginalFilename', u'updatengine-client.exe'),
         StringStruct(u'ProductName', u'UpdatEngine Client'),
-        StringStruct(u'ProductVersion', u'4.1.1.0')])
+        StringStruct(u'ProductVersion', u'4.1.2.0')])
       ]),
     VarFileInfo([VarStruct(u'Translation', [0x040C, 0x04E4])])
   ]

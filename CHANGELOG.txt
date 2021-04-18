@@ -2,8 +2,15 @@
 # UpdatEngine-client #
 ######################
 
+4.1.2:
+- Add User-Agent 'UpdatEngine-client' in HTTP headers
+- Set default installation timeout to 600s
+- Update get_os function
+- Fix temp folder usage on deletion error
+
 4.1.1:
 - Fix bug on current user inventory
+- Fix Linux setup bug to run in virtual environment
 
 4.1.0:
 - Fix bug on encodage response when an installation failed
