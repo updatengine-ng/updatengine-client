@@ -6,7 +6,7 @@
 ;
 
 #define MyAppName "UpdatEngine client"
-#define MyAppVersion "4.1.2"
+#define MyAppVersion "4.1.3"
 #define MyAppPublisher "UpdatEngine-NG"
 #define MyAppURL "https://github.com/updatengine-ng/updatengine-client"
 #define MyAppSetupName "updatengine-client-setup"
@@ -16,7 +16,7 @@
 AppId={{74B4EB48-7DE3-4708-B36D-7D40F1426658}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-AppCopyright=Copyright (C) 2020 {#MyAppPublisher}
+AppCopyright=Copyright (C) 2021 {#MyAppPublisher}
 VersionInfoVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
