@@ -39,21 +39,21 @@ class ueinventory(object):
     @staticmethod
     def build_inventory():
         self = ueinventory()
-        hostname = self.get_hostname().strip()
-        serial = self.get_serial().strip()
-        manufacturer = self.get_manufacturer().strip()
-        product = self.get_product().strip()
-        uuid = self.get_uuid().strip()
-        domain = self.get_domain().strip()
-        language = self.get_language().strip()
-        chassistype = self.get_chassistype().strip()
+        hostname = self.get_hostname()
+        serial = self.get_serial()
+        manufacturer = self.get_manufacturer()
+        product = self.get_product()
+        uuid = self.get_uuid()
+        domain = self.get_domain()
+        language = self.get_language()
+        chassistype = self.get_chassistype()
         osdata = self.format_oslist(self.get_oslist())
         ossum =  str(hashlib.md5(osdata.encode('utf-8')).hexdigest())
         softwaredata = self.format_softlist(self.get_softwarelist())
         softsum = str(hashlib.md5(softwaredata.encode('utf-8')).hexdigest())
         netdata = self.format_netlist(self.get_netlist())
         netsum =  str(hashlib.md5(netdata.encode('utf-8')).hexdigest())
-        username = self.get_username().strip()
+        username = self.get_username()
 
         # Abort build_inventory if inventory presents too many errors
         if serial == manufacturer == product == domain == uuid == username == 'Unknown':
@@ -85,8 +85,8 @@ class ueinventory(object):
         self = ueinventory()
         self.xml = xml
 
-        serial = self.get_serial().strip()
-        hostname = self.get_hostname().strip()
+        serial = self.get_serial()
+        hostname = self.get_hostname()
         extendeddata = self.get_extendeddata()
         if not extendeddata:
             return ''
@@ -102,50 +102,50 @@ class ueinventory(object):
 
     def get_hostname(self):
         try:
-            return self.wmi_conn.Win32_ComputerSystem()[0].Caption
+            return self.wmi_conn.Win32_ComputerSystem()[0].Caption.strip()
         except:
             return 'Unkown'
 
     def get_serial(self):
         try:
-            return self.wmi_conn.Win32_BIOS()[0].SerialNumber
+            return self.wmi_conn.Win32_BIOS()[0].SerialNumber.strip()
         except:
             return 'Unknown'
 
     def get_manufacturer(self):
         try:
-            return self.wmi_conn.Win32_ComputerSystem()[0].Manufacturer
+            return self.wmi_conn.Win32_ComputerSystem()[0].Manufacturer.strip()
         except:
             return 'Unknown'
 
     def get_uuid(self):
         try:
-            return self.wmi_conn.Win32_ComputerSystemProduct()[0].UUID
+            return self.wmi_conn.Win32_ComputerSystemProduct()[0].UUID.strip()
         except:
             return 'Unknown'
 
     def get_username(self):
         try:
-            return self.wmi_conn.Win32_ComputerSystem()[0].UserName.split('\\')[1]
+            return self.wmi_conn.Win32_ComputerSystem()[0].UserName.split('\\')[1].strip()
         except:
             return 'Unknown'
 
     def get_domain(self):
         try:
-            return self.wmi_conn.Win32_ComputerSystem()[0].Domain
+            return self.wmi_conn.Win32_ComputerSystem()[0].Domain.strip()
         except:
             return 'Unknown'
 
     def get_language(self):
         import locale
         try:
-            return locale.getdefaultlocale()[0]
+            return locale.getdefaultlocale()[0].strip()
         except:
             return 'Unknown'
 
     def get_product(self):
         try:
-            return self.wmi_conn.Win32_ComputerSystem()[0].Model
+            return self.wmi_conn.Win32_ComputerSystem()[0].Model.strip()
         except:
             return 'Unknown'
 

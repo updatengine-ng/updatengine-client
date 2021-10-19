@@ -38,21 +38,21 @@ class ueinventory(object):
     def build_inventory():
         self = ueinventory()
         dmi = dmidecode.DMIDecode()
-        hostname = self.get_hostname().strip()
-        serial = self.get_serial(dmi).strip()
-        manufacturer = self.get_manufacturer(dmi).strip()
-        product = self.get_product(dmi).strip()
-        uuid = self.get_uuid(dmi).strip()
-        domain = self.get_domain().strip()
-        language = self.get_language().strip()
-        chassistype = self.get_chassistype(dmi).strip()
+        hostname = self.get_hostname()
+        serial = self.get_serial(dmi)
+        manufacturer = self.get_manufacturer(dmi)
+        product = self.get_product(dmi)
+        uuid = self.get_uuid(dmi)
+        domain = self.get_domain()
+        language = self.get_language()
+        chassistype = self.get_chassistype(dmi)
         osdata = self.format_oslist(self.get_oslist())
         ossum = str(hashlib.md5(osdata.encode('utf-8')).hexdigest())
         softwaredata = self.format_softlist(self.get_softwarelist())
         softsum = str(hashlib.md5(softwaredata.encode('utf-8')).hexdigest())
         netdata = self.format_netlist(self.get_netlist())
         netsum = str(hashlib.md5(netdata.encode('utf-8')).hexdigest())
-        username = self.get_username().strip()
+        username = self.get_username()
 
         data = \
             '<Inventory>' \
@@ -81,8 +81,8 @@ class ueinventory(object):
         self.xml = xml
 
         dmi = dmidecode.DMIDecode()
-        hostname = self.get_hostname().strip()
-        serial = self.get_serial(dmi).strip()
+        hostname = self.get_hostname()
+        serial = self.get_serial(dmi)
         extendeddata = self.get_extendeddata()
         if not extendeddata:
             return ''
@@ -98,31 +98,31 @@ class ueinventory(object):
 
     def get_hostname(self):
         try:
-            return platform.node()
+            return platform.node().strip()
         except:
             return 'Unknown'
 
     def get_serial(self, dmi):
         try:
-            return dmi.serial_number()
+            return dmi.serial_number().strip()
         except:
             return 'Unknown'
 
     def get_manufacturer(self, dmi):
         try:
-            return dmi.manufacturer()
+            return dmi.manufacturer().strip()
         except:
             return'Unknown'
 
     def get_uuid(self, dmi):
         try:
-            return dmi.get('System')[0].get('UUID', dmi.default)
+            return dmi.get('System')[0].get('UUID', dmi.default).strip()
         except:
             return 'Unknown'
 
     def get_username(self):
         try:
-            return psutil.users()[0].name
+            return psutil.users()[0].name.strip()
         except:
             return 'undefined'
 
@@ -133,7 +133,7 @@ class ueinventory(object):
             hostname = socket.gethostname()
             domain = fqdn.replace(hostname, '')
             if domain != '':
-                return domain
+                return domain.strip()
             else:
                 return 'undefined'
         except:
@@ -142,19 +142,19 @@ class ueinventory(object):
     def get_language(self):
         import locale
         try:
-            return locale.getdefaultlocale()[0]
+            return locale.getdefaultlocale()[0].strip()
         except:
             return 'Unknown'
 
     def get_product(self, dmi):
         try:
-            return dmi.model()
+            return dmi.model().strip()
         except:
             return 'Unknown'
 
     def get_chassistype(self, dmi):
         try:
-            return dmi.get('Chassis')[0].get('Type', dmi.default)
+            return dmi.get('Chassis')[0].get('Type', dmi.default).strip()
         except:
             return 'Unknown'
 
