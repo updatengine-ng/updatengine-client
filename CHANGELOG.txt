@@ -2,6 +2,9 @@
 # UpdatEngine-client #
 ######################
 
+4.1.3:
+- Fix inventory ending prematurely when fetching null values ​​on serial number or other attributes
+
 4.1.2:
 - Add User-Agent 'UpdatEngine-client' in HTTP headers
 - Set default installation timeout to 600s
