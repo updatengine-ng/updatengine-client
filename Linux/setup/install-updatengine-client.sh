@@ -13,7 +13,7 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
-PY_VER=3.7
+PY_VER=3
 INST_DIR=/opt/updatengine-client
 
 UE_url=""
@@ -46,7 +46,7 @@ fi
 apt install python${PY_VER} python${PY_VER}-dev python3-pip python${PY_VER}-venv unzip -y
 python${PY_VER} -m venv ${INST_DIR}
 source ${INST_DIR}/bin/activate
-${INST_DIR}/bin/python3 -m pip install testresources setuptools dmiparse psutil lxml py-dmidecode netifaces distro
+${INST_DIR}/bin/python3 -m pip install testresources setuptools wheel dmiparse psutil lxml py-dmidecode netifaces distro
 
 pkill -f updatengine-client.py
 wget https://github.com/updatengine-ng/updatengine-client/archive/master.zip -O /tmp/ue-client.zip && unzip -o /tmp/ue-client.zip -d /tmp/ && rm /tmp/ue-client.zip
