@@ -46,6 +46,7 @@ fi
 apt install python${PY_VER} python${PY_VER}-dev python3-pip python${PY_VER}-venv unzip -y
 python${PY_VER} -m venv ${INST_DIR}
 source ${INST_DIR}/bin/activate
+${INST_DIR}/bin/python3 -m ensurepip --upgrade
 ${INST_DIR}/bin/python3 -m pip install testresources setuptools wheel dmiparse psutil lxml py-dmidecode netifaces distro
 
 pkill -f updatengine-client.py
