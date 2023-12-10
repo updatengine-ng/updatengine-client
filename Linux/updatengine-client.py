@@ -107,6 +107,9 @@ def main():
     parser.add_argument(
         '-c', '--cert', dest='cert',
         type=str, help='absolute path to cacert.pem file')
+    parser.add_argument(
+        '-r', '--nosslcn', dest='nosslcn',
+        action='store_true', help='SSL relax mode, do not check Common Name')
     group.add_argument(
         '-l', '--list', dest='list',
         action='store_true', help='to get public soft list')
@@ -129,6 +132,12 @@ def main():
 
     if (options.get is not None or options.list is True or options.inventory is True) and options.server is None:
         parser.error('a server URL is required')
+
+    if options.nosslcn is True and not options.cert:
+        parser.error('a certificat is required with nosslcn option')
+
+    if options.server:
+        options.server = options.server.strip("/")
 
     # Check options
     try:

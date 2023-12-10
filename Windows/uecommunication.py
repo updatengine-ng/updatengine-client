@@ -32,6 +32,7 @@ import ueconst
 class uecommunication(object):
     socket.setdefaulttimeout(30)
     ssl_version = ssl.PROTOCOL_SSLv23
+    ssl_context = ssl.SSLContext(ssl_version)
 
     def check_ssl(self, hostname, port, cafile_local):
         try:
@@ -39,7 +40,6 @@ class uecommunication(object):
         except:
             print('Error in check_ssl (open function)')
             raise
-
         try:
             ssl.get_server_certificate((hostname, port), ssl_version=self.ssl_version, ca_certs=cafile_local)
         except ssl.SSLError:
@@ -73,13 +73,15 @@ class uecommunication(object):
                     else:
                         port = urlbits.port
                     self.check_ssl(hostname, int(port), options.cert)
+                    self.ssl_context.load_verify_locations(cafile=options.cert)
+                    self.ssl_context.check_hostname = not options.nosslcn
             except:
                 raise
         if options.noproxy is True:
             proxy_handler = urllib.request.ProxyHandler({})
-            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler, proxy_handler)
+            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=self.ssl_context), cookieHandler, proxy_handler)
         else:
-            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler)
+            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=self.ssl_context), cookieHandler)
         urllib.request.install_opener(opener)
 
         try:
@@ -155,13 +157,15 @@ class uecommunication(object):
                     else:
                         port = urlbits.port
                     self.check_ssl(hostname, int(port), options.cert)
+                    self.ssl_context.load_verify_locations(cafile=options.cert)
+                    self.ssl_context.check_hostname = not options.nosslcn
             except:
                 raise
         if options.noproxy is True:
             proxy_handler = urllib.request.ProxyHandler({})
-            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler, proxy_handler)
+            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=self.ssl_context), cookieHandler, proxy_handler)
         else:
-            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl.SSLContext(self.ssl_version)), cookieHandler)
+            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=self.ssl_context), cookieHandler)
         urllib.request.install_opener(opener)
 
         try:
