@@ -19,7 +19,7 @@
 # MA  02110-1301, USA.                                                        #
 ###############################################################################
 
-import platform
+import socket
 import distro
 import subprocess
 import os
@@ -98,7 +98,7 @@ class ueinventory(object):
 
     def get_hostname(self):
         try:
-            return platform.node().strip()
+            return socket.gethostname().split('.', 1)[0]
         except:
             return 'Unknown'
 
@@ -128,12 +128,11 @@ class ueinventory(object):
 
     def get_domain(self):
         try:
-            import socket
-            fqdn = socket.getfqdn
-            hostname = socket.gethostname()
-            domain = fqdn.replace(hostname, '')
+            fqdn = socket.getfqdn()
+            hostname = socket.gethostname().split('.', 1)[0]
+            domain = fqdn.replace(hostname, '').strip(' .')
             if domain != '':
-                return domain.strip()
+                return domain
             else:
                 return 'undefined'
         except:
